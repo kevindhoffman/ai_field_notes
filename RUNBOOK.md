@@ -5,6 +5,7 @@ The scheduled task follows this file. It runs **Monday, Wednesday and Friday** b
 **Reading the web.** Use, in this order:
 
 1. `python3 scripts/fieldnotes.py fetch <URL> [--links] [--max N]` — the primary reader. It goes through the environment's network proxy (so it reaches only hosts the environment allows), prints status, title, date metadata and readable text, and with `--links` the page's links. This command is pre-approved in `.claude/settings.json` (owner-authorized, 2026-11-15) because the WebFetch tool cannot resolve hosts in this cloud environment.
+   For YouTube channels use `python3 scripts/fieldnotes.py youtube @handle --since <window start>`, which reads the channel's RSS feed (title, date, link, views, full description). Also pre-approved.
 2. WebFetch, if it works in the session.
 3. WebSearch, to discover posts or as a last resort. Its index lags by days to weeks, so never conclude "nothing published" from search alone.
 
@@ -22,16 +23,17 @@ Run `python3 scripts/fieldnotes.py last`. It prints the last three issues' headl
 
 ## 2. Research (parallel)
 
-Spawn 4 subagents in a single message so they run concurrently. Give each the window dates, its slice of `config/sources.yaml`, the previous issues' topics (to avoid repeats), and the candidate-ledger fields from `EDITORIAL.md` section 3, step 3:
+Spawn 5 subagents in a single message so they run concurrently. Give each the window dates, its slice of `config/sources.yaml`, the previous issues' topics (to avoid repeats), and the candidate-ledger fields from `EDITORIAL.md` section 3, step 3:
 
 - A: `practitioners`, first half of the list
 - B: `practitioners`, second half
 - C: `labs`
 - D: `papers_and_code` and `standards_and_security`: the window's notable papers, releases, spec changes and security advisories on agentic systems, evaluation, retrieval, context, inference and operations
+- E: `builders` and `tool_changelogs` (plus a quick pass over `builders_rotating`): every video and changelog entry in the window, using `python3 scripts/fieldnotes.py youtube @handle --since <window start>` for channels. For each video: title, URL, date, length if known, whether it is a Short or sponsored, what it shows (from description, chapters, linked repo or transcript), and which part is worth watching
 
 Each subagent returns, for every post in the window: author, exact title, exact URL, confirmed publish date, paywall status, and a detailed summary of the specific claims, mechanisms, techniques and numbers (enough to write a real article, not a blurb). It also returns, for each roster source, the count of posts in the window and the date of its latest post.
 
-Hand-off: tell each subagent to (a) read pages with `python3 scripts/fieldnotes.py fetch` as described at the top of this file, run from the repository root; (b) write its results as JSON to `<issue dir>/research/<A|B|C|D>.json` with `{"candidates": [...ledger fields + "summary"], "roster": [{"source", "posts_in_window", "latest_post_date", "latest_post_title", "notes"}]}`; and (c) reply with only 5–10 lines (file path, candidate count, top items, unreachable sources with exact errors). Mark anything not confirmed on the page itself as UNVERIFIED. A source that could not be reached is "unchecked", never "0 posts". If a subagent comes back mostly unchecked, re-run that slice once before writing.
+Hand-off: tell each subagent to (a) read pages with `python3 scripts/fieldnotes.py fetch` as described at the top of this file, run from the repository root; (b) write its results as JSON to `<issue dir>/research/<A|B|C|D|E>.json` with `{"candidates": [...ledger fields + "summary"], "roster": [{"source", "posts_in_window", "latest_post_date", "latest_post_title", "notes"}]}`; and (c) reply with only 5–10 lines (file path, candidate count, top items, unreachable sources with exact errors). Mark anything not confirmed on the page itself as UNVERIFIED. A source that could not be reached is "unchecked", never "0 posts". If a subagent comes back mostly unchecked, re-run that slice once before writing.
 
 ## 3. Candidate ledger
 
@@ -39,7 +41,7 @@ Write `issues/D/candidates.json`: a list of every candidate with the ledger fiel
 
 ## 4. Write the issue
 
-Pick and cluster the stories (`EDITORIAL.md` sections 2–5), read the originals yourself for anything you will cite, and write `issues/D/issue.json` following the schema in `EDITORIAL.md` section 10 (example: `examples/sample-issue.json`). Add SVG figures per section 6. Fill `roster` from the subagents' counts for every source with `roster: true`.
+Pick and cluster the stories (`EDITORIAL.md` sections 2–5), read the originals yourself for anything you will cite, and write `issues/D/issue.json` following the schema in `EDITORIAL.md` section 10 (example: `examples/sample-issue.json`). Add SVG figures per section 6. Fill `roster` from the subagents' counts for every source with `roster: true` (practitioners, labs and builders). Fill `watch` from slice E. Every essay needs `try_it`; give the issue a `title` and `theme` (EDITORIAL.md section 2).
 
 Then challenge each story (section 3, step 8) and re-check every number against its source page.
 
@@ -51,7 +53,7 @@ python3 scripts/fieldnotes.py links  issues/D/issue.json
 ```
 
 - `render` must report **0 errors** and **parity OK**. Fix `issue.json` and rerun until it does. Treat warnings as editorial prompts: fix them or be able to justify them.
-- `links`: fix every BROKEN link. Confirm each UNVERIFIED link by reading it with `fieldnotes.py fetch` (or WebFetch); if neither can, open it in WebSearch results and note it as unverified in the report.
+- `links`: fix every BROKEN link. YouTube watch and Shorts URLs redirect scripts to google.com and show as UNVERIFIED; they count as verified when the URL came from the channel's feed via `fieldnotes.py youtube`. Confirm each UNVERIFIED link by reading it with `fieldnotes.py fetch` (or WebFetch); if neither can, open it in WebSearch results and note it as unverified in the report.
 - Look at `issues/D/web.html` once for anything visibly wrong in the figures (text overflowing boxes).
 
 ## 6. Recipients

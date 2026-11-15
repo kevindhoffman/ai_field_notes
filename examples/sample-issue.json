@@ -1,44 +1,88 @@
 {
-  "date": "2026-11-15",
-  "edition": 0,
-  "window": {"start": "2026-11-14", "end": "2026-11-15"},
-  "lede": "Sample issue, converted from AI Systems Brief Edition 20, used to test rendering. Nathan Lambert asks who will hold up the US open-model ecosystem now that Jensen Huang has left NVIDIA.",
-  "top": [
-    {"html": "<a href=\"#s1\">Lambert argues that open models just lost their main patron, and that compute scarcity keeps open-weight serving from becoming a commodity.</a> If your stack leans on open weights, the supply and pricing assumptions behind it deserve a second look."},
-    {"html": "<a href=\"#briefs\">datasette-llm 0.1a11 lets Datasette's agent run on any OpenAI-compatible server.</a> One config line moves the agent from a hosted model to one on your own machine."}
-  ],
-  "articles": [
+ "date": "2026-11-15",
+ "edition": 0,
+ "window": {
+  "start": "2026-11-14",
+  "end": "2026-11-15"
+ },
+ "lede": "Sample issue, converted from AI Systems Brief Edition 20, used to test rendering. Nathan Lambert asks who will hold up the US open-model ecosystem now that Jensen Huang has left NVIDIA.",
+ "top": [
+  {
+   "html": "<a href=\"#s1\">Lambert argues that open models just lost their main patron, and that compute scarcity keeps open-weight serving from becoming a commodity.</a> If your stack leans on open weights, the supply and pricing assumptions behind it deserve a second look."
+  },
+  {
+   "html": "<a href=\"#briefs\">datasette-llm 0.1a11 lets Datasette's agent run on any OpenAI-compatible server.</a> One config line moves the agent from a hosted model to one on your own machine."
+  }
+ ],
+ "articles": [
+  {
+   "id": "s1",
+   "kicker": "Open models",
+   "badges": [
+    "Single source",
+    "Analysis and opinion"
+   ],
+   "headline": "Open-model supply loses its patron, and the economics still favor closed labs",
+   "dek": "Nathan Lambert reads Jensen Huang's exit from NVIDIA as a blow to US open models, and explains why compute scarcity, politics and talent make the gap hard to close.",
+   "paragraphs": [
+    "In <a href=\"https://www.interconnects.ai/p/open-source-ai-without-jensen\">Open-source AI without Jensen</a>, Nathan Lambert of Interconnects argues that Huang's departure matters more for the open-weight ecosystem than for GPU supply. His starting point is NVIDIA's incentive. A world with many capable open models gives NVIDIA many customers, and that keeps a handful of very large buyers from concluding that they should design their own chips. Huang acted on that incentive by funding open-model work heavily for about two years. Lambert expects the company to spend the next 24 months on stability and delivering to customers, and he expects the open-model budget to shrink.",
+    "The deeper problem, in Lambert's account, is economic. The open-model market is young, and the next few years will decide its use cases, its revenue and whether anyone has a reason to keep training new models. Its strengths so far are ownership of intelligence and enterprise post-training. But a commodity needs abundant supply, and compute is scarce. Inference startups struggle to get chips, so hosts of open-weight models face little price competition.",
+    "Politics adds a third pressure. Lambert sees growing money behind candidates who favor AI-safety regulation, many of whom regard open models as unsafe, and his nearest worry is hasty state-level rules. He expects a serious cyber incident tied to a popular open-weight model sooner or later, and notes that the most valuable open-model use happens on private infrastructure, where public data cannot show it.",
+    "His proposed fix is a true frontier open-model lab in the US. He argues the constraint is talent and scale more than money. <em>Editorial note:</em> these are one analyst's forecasts. The comparisons between models are his judgment, and the funding figure he cites is reported, not confirmed by the company."
+   ],
+   "figure": {
+    "after_paragraph": 4,
+    "aria_label": "Each support for US open models faces a pressure: patronage, economics, politics and frontier quality.",
+    "claim": "Each support for US open models faces its own pressure.",
+    "caption": "All rows are Lambert's argument, not measured data. Red marks the pressures he names; the teal box is his proposed answer, which he treats as uncertain.",
+    "email_description": "The diagram pairs four supports with the pressure on each: NVIDIA's patronage against Huang's exit; the open-model economy against scarce compute; political room against safety-backed money; frontier quality against talent concentrated in closed labs. All four lead to Lambert's proposed fix, a US frontier open lab, drawn as uncertain.",
+    "svg": "<svg viewBox=\"0 0 400 150\"><defs><marker id=\"s1-risk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M0,0 L10,5 L0,10 z\" class=\"mk-risk\"/></marker></defs><rect x=\"12\" y=\"12\" width=\"180\" height=\"50\" rx=\"8\" class=\"box-acc\"/><text x=\"24\" y=\"42\" class=\"t-b\">NVIDIA as patron</text><line x1=\"236\" y1=\"37\" x2=\"194\" y2=\"37\" class=\"ln ln-risk\" marker-end=\"url(#s1-risk)\"/><rect x=\"236\" y=\"12\" width=\"152\" height=\"50\" rx=\"8\" class=\"box-risk\"/><text x=\"246\" y=\"42\" class=\"t-sm t-risk\">Huang resigns</text><rect x=\"12\" y=\"84\" width=\"376\" height=\"54\" rx=\"8\" class=\"box-q dash\"/><text x=\"200\" y=\"115\" text-anchor=\"middle\" class=\"t-b t-q\">Fix: a US frontier open lab</text></svg>"
+   },
+   "sources": [
     {
-      "id": "s1",
-      "kicker": "Open models",
-      "badges": ["Single source", "Analysis and opinion"],
-      "headline": "Open-model supply loses its patron, and the economics still favor closed labs",
-      "dek": "Nathan Lambert reads Jensen Huang's exit from NVIDIA as a blow to US open models, and explains why compute scarcity, politics and talent make the gap hard to close.",
-      "paragraphs": [
-        "In <a href=\"https://www.interconnects.ai/p/open-source-ai-without-jensen\">Open-source AI without Jensen</a>, Nathan Lambert of Interconnects argues that Huang's departure matters more for the open-weight ecosystem than for GPU supply. His starting point is NVIDIA's incentive. A world with many capable open models gives NVIDIA many customers, and that keeps a handful of very large buyers from concluding that they should design their own chips. Huang acted on that incentive by funding open-model work heavily for about two years. Lambert expects the company to spend the next 24 months on stability and delivering to customers, and he expects the open-model budget to shrink.",
-        "The deeper problem, in Lambert's account, is economic. The open-model market is young, and the next few years will decide its use cases, its revenue and whether anyone has a reason to keep training new models. Its strengths so far are ownership of intelligence and enterprise post-training. But a commodity needs abundant supply, and compute is scarce. Inference startups struggle to get chips, so hosts of open-weight models face little price competition.",
-        "Politics adds a third pressure. Lambert sees growing money behind candidates who favor AI-safety regulation, many of whom regard open models as unsafe, and his nearest worry is hasty state-level rules. He expects a serious cyber incident tied to a popular open-weight model sooner or later, and notes that the most valuable open-model use happens on private infrastructure, where public data cannot show it.",
-        "His proposed fix is a true frontier open-model lab in the US. He argues the constraint is talent and scale more than money. <em>Editorial note:</em> these are one analyst's forecasts. The comparisons between models are his judgment, and the funding figure he cites is reported, not confirmed by the company."
-      ],
-      "figure": {
-        "after_paragraph": 4,
-        "aria_label": "Each support for US open models faces a pressure: patronage, economics, politics and frontier quality.",
-        "claim": "Each support for US open models faces its own pressure.",
-        "caption": "All rows are Lambert's argument, not measured data. Red marks the pressures he names; the teal box is his proposed answer, which he treats as uncertain.",
-        "email_description": "The diagram pairs four supports with the pressure on each: NVIDIA's patronage against Huang's exit; the open-model economy against scarce compute; political room against safety-backed money; frontier quality against talent concentrated in closed labs. All four lead to Lambert's proposed fix, a US frontier open lab, drawn as uncertain.",
-        "svg": "<svg viewBox=\"0 0 400 150\"><defs><marker id=\"s1-risk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M0,0 L10,5 L0,10 z\" class=\"mk-risk\"/></marker></defs><rect x=\"12\" y=\"12\" width=\"180\" height=\"50\" rx=\"8\" class=\"box-acc\"/><text x=\"24\" y=\"42\" class=\"t-b\">NVIDIA as patron</text><line x1=\"236\" y1=\"37\" x2=\"194\" y2=\"37\" class=\"ln ln-risk\" marker-end=\"url(#s1-risk)\"/><rect x=\"236\" y=\"12\" width=\"152\" height=\"50\" rx=\"8\" class=\"box-risk\"/><text x=\"246\" y=\"42\" class=\"t-sm t-risk\">Huang resigns</text><rect x=\"12\" y=\"84\" width=\"376\" height=\"54\" rx=\"8\" class=\"box-q dash\"/><text x=\"200\" y=\"115\" text-anchor=\"middle\" class=\"t-b t-q\">Fix: a US frontier open lab</text></svg>"
-      },
-      "for_your_systems": "If any part of your stack depends on open weights, write down why: data control, cost, latency or post-training. Keep local copies of the exact weights and tokenizer files you ship, and keep an eval suite that can swap an open model for a closed one.",
-      "sources": [
-        {"who": "Nathan Lambert, Interconnects", "title": "Open-source AI without Jensen", "url": "https://www.interconnects.ai/p/open-source-ai-without-jensen", "date": "Nov 14, 2026", "flags": "free", "note": "opinion; funding figure is reported"}
-      ]
+     "who": "Nathan Lambert, Interconnects",
+     "title": "Open-source AI without Jensen",
+     "url": "https://www.interconnects.ai/p/open-source-ai-without-jensen",
+     "date": "Nov 14, 2026",
+     "flags": "free",
+     "note": "opinion; funding figure is reported"
     }
-  ],
-  "briefs": [
-    {"title": "A Datasette agent on a local model", "html": "Simon Willison released <a href=\"https://simonwillison.net/2026/Nov/14/datasette-llm/\">datasette-llm 0.1a11</a>, which now accepts any OpenAI-compatible endpoint, so LM Studio, Ollama and llama.cpp all work.", "who": "Simon Willison", "date": "Nov 14, 2026", "flags": "free", "url": "https://simonwillison.net/2026/Nov/14/datasette-llm/"}
-  ],
-  "roster": [
-    {"source": "Interconnects", "posts": 1, "notes": "Story 1"},
-    {"source": "Simon Willison", "posts": 2, "notes": "One brief; one non-AI release"}
-  ]
+   ],
+   "try_it": {
+    "time": "about 1 hour",
+    "steps": [
+     "List every place your stack depends on open weights and write down why: data control, cost, latency or post-training.",
+     "Keep local copies of the exact weights and tokenizer files you ship.",
+     "Make sure your eval suite can swap an open model for a closed one, so a supply or price change forces a measured switch instead of a scramble."
+    ]
+   }
+  }
+ ],
+ "briefs": [
+  {
+   "title": "A Datasette agent on a local model",
+   "html": "Simon Willison released <a href=\"https://simonwillison.net/2026/Nov/14/datasette-llm/\">datasette-llm 0.1a11</a>, which now accepts any OpenAI-compatible endpoint, so LM Studio, Ollama and llama.cpp all work.",
+   "who": "Simon Willison",
+   "date": "Nov 14, 2026",
+   "flags": "free",
+   "url": "https://simonwillison.net/2026/Nov/14/datasette-llm/"
+  }
+ ],
+ "roster": [
+  {
+   "source": "Interconnects",
+   "posts": 1,
+   "notes": "Story 1"
+  },
+  {
+   "source": "Simon Willison",
+   "posts": 2,
+   "notes": "One brief; one non-AI release"
+  }
+ ],
+ "title": "Open models lose their patron",
+ "theme": {
+  "heading": "Who keeps open models affordable now?",
+  "html": "Sample issue converted from AI Systems Brief Edition 20, used to test rendering. It shows the issue title, theme, numbered essays and the Try it this week block."
+ }
 }

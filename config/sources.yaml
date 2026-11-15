@@ -32,6 +32,39 @@ practitioners:          # independent analysts and engineers; scan every issue, 
   - {name: METR, url: "https://metr.org/", roster: true, note: "Empirical task-completion and capability evaluations."}
   - {name: Epoch AI, url: "https://epoch.ai/", roster: true, note: "Model trends, compute, AI economics."}
 
+builders:               # people showing how to apply AI in daily work; scan every issue, list in roster
+  # YouTube: python3 scripts/fieldnotes.py youtube @handle --since <window start>  (title, date, link, description)
+  - {name: "Nate B Jones (AI News & Strategy Daily)", youtube: "@NateBJones", url: "https://natesnewsletter.substack.com/", roster: true,
+     note: "Daily applied strategy: what a development means for your work and your AI bill."}
+  - {name: Cole Medin, youtube: "@ColeMedin", roster: true, note: "Full agent builds, local models, agentic coding. Flag sponsored Shorts."}
+  - {name: IndyDevDan, youtube: "@indydevdan", roster: true, note: "Agentic coding workflows and 'software factories'."}
+  - {name: Sam Witteveen, youtube: "@samwitteveenai", roster: true, note: "Hands-on walkthroughs of new models, frameworks and APIs, usually within days."}
+  - {name: "Lenny's Podcast", youtube: "@LennysPodcast", url: "https://www.lennysnewsletter.com/", roster: true,
+     note: "How product and engineering leaders use AI; transcripts on lennysnewsletter.com."}
+  - {name: "Every (AI & I)", youtube: "@EveryInc", url: "https://every.to/", roster: true,
+     note: "Hands-on model comparisons and workflow interviews. Many Shorts; prefer full episodes."}
+  - {name: Riley Brown, youtube: "@rileybrownai", roster: true, note: "Weekly roundup of AI work tools, building apps with AI; accessible to non-engineers."}
+
+builders_rotating:      # scan when time allows, use for discovery; feature when they have the best applied item
+  - {name: Mckay Wrigley, youtube: "@realmckaywrigley", note: "Inactive since Jul 2025; check occasionally."}
+  - {name: AI Jason, note: "Agent and tool-use builds."}
+  - {name: Riley Goodside / prompt craft, note: "Discovery only."}
+  - {name: "Theo (t3.gg)", note: "Opinions on AI dev tools."}
+  - {name: Fireship, note: "Fast release summaries; discovery only."}
+  - {name: Andrej Karpathy, note: "Occasional definitive explainers."}
+  - {name: All About AI, note: "Quick experiments with new tools."}
+  - {name: "Matthew Berman, Wes Roth, AI Explained", note: "Release news; discovery only, then go to the primary source."}
+  - {name: "Jeff Su, Tina Huang", note: "AI productivity for knowledge workers."}
+  # Resolve a channel's handle with the youtube command before relying on it; record verified handles here.
+
+tool_changelogs:        # often the most directly usable updates; scan every issue
+  - {name: Claude Code, url: "https://code.claude.com/docs/en/changelog"}
+  - {name: Claude platform release notes, url: "https://platform.claude.com/docs/en/release-notes/overview"}
+  - {name: Cursor, url: "https://cursor.com/changelog"}
+  - {name: GitHub Copilot and GitHub changelog, url: "https://github.blog/changelog/"}
+  - {name: OpenAI API changelog, url: "https://platform.openai.com/docs/changelog", note: "Often refuses scripts (403); use the RSS https://openai.com/news/rss.xml"}
+  - {name: Gemini API changelog, url: "https://ai.google.dev/gemini-api/docs/changelog"}
+
 labs:                   # primary labs and engineering organizations; scan every issue
   - {name: Anthropic, urls: ["https://www.anthropic.com/engineering", "https://www.anthropic.com/research", "https://docs.anthropic.com/"], roster: true}
   - {name: OpenAI, urls: ["https://openai.com/research/", "https://openai.com/index/", "https://platform.openai.com/docs/"], roster: true}
