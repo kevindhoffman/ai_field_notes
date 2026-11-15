@@ -1,0 +1,68 @@
+# AI Field Notes source roster.
+# Research starting points, not endorsements or quotas. Follow original sources before commentary.
+# To add a source: copy an entry into the right tier. `roster: true` means it appears in each
+# issue's source-roster table (what it published in the window); other tiers are scanned for
+# material but not listed one by one.
+#
+# How to check a source: fetch its homepage or archive page with WebFetch (RSS feeds are often
+# blocked); fall back to WebSearch with site:<domain> and the window dates. Confirm every
+# publish date on the page itself; never guess.
+
+practitioners:          # independent analysts and engineers; scan every issue, list in roster
+  - {name: Simon Willison, url: "https://simonwillison.net/", roster: true,
+     note: "High volume. Prefer substantive entries and link-blog items on agents, tooling, LLM engineering, security. Also llm.datasette.io."}
+  - {name: Latent Space, url: "https://www.latent.space/", roster: true,
+     note: "Articles, podcast transcripts, AI News roundups."}
+  - {name: Hamel Husain, url: "https://hamel.dev/", roster: true, note: "Applied LLM engineering, evals, agent reliability."}
+  - {name: Eugene Yan, url: "https://eugeneyan.com/", roster: true}
+  - {name: Chip Huyen, url: "https://huyenchip.com/blog/", roster: true, note: "AI engineering, inference, agents, system design."}
+  - {name: Martin Fowler, url: "https://martinfowler.com/", roster: true, note: "AI/LLM/agent items only, including Fragments."}
+  - {name: Jason Liu, url: "https://jxnl.co/", roster: true}
+  - {name: "Sebastian Raschka, Ahead of AI", url: "https://magazine.sebastianraschka.com/", roster: true,
+     note: "Model architectures and training. Also sebastianraschka.com/blog/."}
+  - {name: "Nathan Lambert, Interconnects", url: "https://www.interconnects.ai/", roster: true,
+     note: "Models, training, open-weight ecosystem, post-training."}
+  - {name: "Jack Clark, Import AI", url: "https://importai.substack.com/", roster: true, note: "Also jack-clark.net."}
+  - {name: "Ethan Mollick, One Useful Thing", url: "https://www.oneusefulthing.org/", roster: true,
+     note: "Real-world adoption, human-AI work, empirical research."}
+  - {name: "Gergely Orosz, The Pragmatic Engineer", url: "https://newsletter.pragmaticengineer.com/", roster: true,
+     note: "AI posts only. Often paywalled; say so."}
+  - {name: Lilian Weng, url: "https://lilianweng.github.io/", roster: true, note: "Research-oriented technical essays; infrequent."}
+  - {name: METR, url: "https://metr.org/", roster: true, note: "Empirical task-completion and capability evaluations."}
+  - {name: Epoch AI, url: "https://epoch.ai/", roster: true, note: "Model trends, compute, AI economics."}
+
+labs:                   # primary labs and engineering organizations; scan every issue
+  - {name: Anthropic, urls: ["https://www.anthropic.com/engineering", "https://www.anthropic.com/research", "https://docs.anthropic.com/"], roster: true}
+  - {name: OpenAI, urls: ["https://openai.com/research/", "https://openai.com/index/", "https://platform.openai.com/docs/"], roster: true}
+  - {name: Google DeepMind, urls: ["https://deepmind.google/discover/blog/", "https://deepmind.google/research/", "https://ai.google.dev/"], roster: true}
+  - {name: Google Research, url: "https://research.google/blog/"}
+  - {name: "LangChain / LangGraph / LangSmith", urls: ["https://blog.langchain.com/", "https://docs.langchain.com/"]}
+  - {name: Microsoft Research, url: "https://www.microsoft.com/en-us/research/blog/"}
+  - {name: Microsoft Azure AI, url: "https://learn.microsoft.com/en-us/azure/ai-services/"}
+  - {name: Hugging Face, urls: ["https://huggingface.co/blog", "https://huggingface.co/papers"]}
+  - {name: AWS, urls: ["https://aws.amazon.com/blogs/machine-learning/", "https://aws.amazon.com/architecture/"]}
+  - {name: Cloudflare, url: "https://blog.cloudflare.com/tag/ai/"}
+  - {name: NVIDIA, url: "https://developer.nvidia.com/blog/"}
+  - {name: Databricks, url: "https://www.databricks.com/blog"}
+  - {name: Weights & Biases, url: "https://wandb.ai/site/articles/"}
+
+papers_and_code:        # search for the window's notable items; don't list in roster
+  - {name: arXiv, urls: ["https://arxiv.org/list/cs.AI/recent", "https://arxiv.org/list/cs.LG/recent", "https://arxiv.org/list/cs.CL/recent", "https://arxiv.org/list/cs.DC/recent"]}
+  - {name: OpenReview, url: "https://openreview.net/"}
+  - {name: Papers with Code, url: "https://paperswithcode.com/"}
+  - {name: GitHub releases and issues, url: "https://github.com/", note: "Track the specific repositories mentioned in stories."}
+
+standards_and_security: # check when a story touches governance or security
+  - {name: NIST AI RMF, url: "https://www.nist.gov/itl/ai-risk-management-framework"}
+  - {name: NIST AI 600-1 GenAI Profile, url: "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf"}
+  - {name: OWASP Top 10 for LLM Applications, url: "https://genai.owasp.org/"}
+  - {name: MITRE ATLAS, url: "https://atlas.mitre.org/"}
+  - {name: Model Context Protocol spec, url: "https://modelcontextprotocol.io/"}
+  - {name: Agent Skills spec, url: "https://agentskills.io/"}
+
+primary_evidence:       # for policy, economics, procurement and incidents: link here, not to coverage
+  - {name: SEC EDGAR, url: "https://www.sec.gov/edgar/search/"}
+  - {name: NIST, url: "https://www.nist.gov/"}
+  - {name: CISA, url: "https://www.cisa.gov/"}
+  - {name: Federal Register, url: "https://www.federalregister.gov/"}
+  - {name: Google Scholar, url: "https://scholar.google.com/"}
