@@ -16,6 +16,12 @@ A Claude scheduled task runs before dawn (America/New_York) on publication days.
 6. emails the full HTML from Gmail to the subscriber list, verifies the send, and records it in `sent.json`;
 7. rebuilds the archive in `docs/` and commits everything back here.
 
+## Production setup
+
+- **Schedule:** a Claude scheduled task named "AI Field Notes" fires Mon/Wed/Fri at 3:47 AM America/New_York.
+- **Where it runs:** it posts into one long-lived cloud session ("AI Field Notes — production") that already has this repo with push access, the Gmail and Google Drive connectors, and subagents. Fresh scheduled sessions lack those, which is why it reuses one session. That session runs `git pull --rebase` first, so changes merged here take effect on the next issue.
+- **Network:** the cloud environment allows only listed hosts. The sources in `config/sources.yaml` are allowed. If a run reports a blocked host, add it to the environment's allowed hosts.
+
 ## Common changes
 
 | To change | Edit |
