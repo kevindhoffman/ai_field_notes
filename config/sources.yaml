@@ -4,9 +4,10 @@
 # issue's source-roster table (what it published in the window); other tiers are scanned for
 # material but not listed one by one.
 #
-# How to check a source: fetch its homepage or archive page with WebFetch (RSS feeds are often
-# blocked); fall back to WebSearch with site:<domain> and the window dates. Confirm every
-# publish date on the page itself; never guess.
+# How to check a source: read its homepage or archive page with
+# `python3 scripts/fieldnotes.py fetch <url> --links` (see RUNBOOK.md; RSS feeds are often blocked);
+# use WebSearch with site:<domain> only to discover posts. Confirm every publish date on the page
+# itself; never guess. Simon Willison has day archives: https://simonwillison.net/2026/Nov/14/
 
 practitioners:          # independent analysts and engineers; scan every issue, list in roster
   - {name: Simon Willison, url: "https://simonwillison.net/", roster: true,

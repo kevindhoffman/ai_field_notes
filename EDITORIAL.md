@@ -116,7 +116,7 @@ Legacy topics from the predecessor publications, for the first issues before the
 - [ ] Measured findings, vendor claims and editorial inference distinguishable.
 - [ ] Every figure has an aria label and a complete email description.
 - [ ] `fieldnotes.py render` reports 0 errors and `parity OK`.
-- [ ] `fieldnotes.py links` shows no BROKEN links; UNVERIFIED ones confirmed with WebFetch.
+- [ ] `fieldnotes.py links` shows no BROKEN links; UNVERIFIED ones confirmed by reading them (`fieldnotes.py fetch` or WebFetch).
 - [ ] Email sent with a returned message ID, and the Sent copy checked.
 
 ## 10. issue.json schema
