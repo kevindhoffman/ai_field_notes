@@ -54,12 +54,12 @@ python3 scripts/fieldnotes.py links  issues/D/issue.json
 
 - `render` must report **0 errors** and **parity OK**. Fix `issue.json` and rerun until it does. Treat warnings as editorial prompts: fix them or be able to justify them.
 - `links`: fix every BROKEN link. YouTube watch and Shorts URLs redirect scripts to google.com and show as UNVERIFIED; they count as verified when the URL came from the channel's feed via `fieldnotes.py youtube`. Confirm each UNVERIFIED link by reading it with `fieldnotes.py fetch` (or WebFetch); if neither can, open it in WebSearch results and note it as unverified in the report.
-- `render` also turns each diagram into `issues/D/fig-<id>.png` and embeds it in the email as an image hosted with the web edition. It should report `diagrams as images in email: N/N`. If it can't (no Playwright), the email falls back to the text description and that's acceptable; say so in the report.
+- In the email, each diagram appears as its text description with a link to the full article on the web edition. (The Gmail send tool strips `<img>` tags that point at URLs, so hosted images never reach readers; don't try to embed them.)
 - Look at `issues/D/web.html` once for anything visibly wrong in the figures (text overflowing boxes).
 
 ## 5b. Publish the web edition before sending
 
-The email links to the web edition and loads its diagram images from it, so the page must be live first.
+The email links to the web edition for the diagrams and full articles, so the page must be live first.
 
 ```
 python3 scripts/fieldnotes.py publish issues/D/issue.json
@@ -67,7 +67,7 @@ git add issues/D docs && git commit -m "Issue D: web edition" && git push origin
 python3 scripts/fieldnotes.py wait-live https://kevindhoffman.github.io/ai_field_notes/issues/D.html
 ```
 
-`wait-live` polls for up to 7 minutes (GitHub Pages usually takes 1–2). If it never goes live, send anyway and report it: the email still reads fine, only the links and images are late.
+`wait-live` polls for up to 7 minutes (GitHub Pages usually takes 1–2). If it never goes live, send anyway and report it: the email still reads fine, only the links are late.
 
 ## 6. Recipients
 
@@ -104,7 +104,7 @@ Run when asked for a "TEST issue". Follow every step above, with these differenc
 - **Edition and window:** as for a real run (from `fieldnotes.py last`), unless the request names a window.
 - **Recipients:** only the owner address given in the request. Don't read the subscriber doc; no Bcc.
 - **Subject:** `[TEST] AI Field Notes | D`. Duplicate check (7.1) searches that subject.
-- **Web edition:** add `"web_path": "tests/D"` to the test `issue.json` before rendering. In 5b, `publish` then writes to `docs/tests/D.html` (not linked from the archive index), and you commit and push only `docs/tests/`, so the test email's links and diagram images work.
+- **Web edition:** add `"web_path": "tests/D"` to the test `issue.json` before rendering. In 5b, `publish` then writes to `docs/tests/D.html` (not linked from the archive index), and you commit and push only `docs/tests/`, so the test email's links work.
 - **Skip the rest of section 8** except writing `sent.json` into the test directory: no `site`, no other commit, no artifact publish.
 - Report the usual summary plus anything in this runbook that was unclear or got in the way.
 

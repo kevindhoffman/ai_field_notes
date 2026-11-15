@@ -384,7 +384,7 @@ def email_article(a, n=1, images=None):
             block = (f'<div style="margin:4px 0 16px;padding:12px 14px;background:{E["surface"]};border:1px solid {E["border"]};border-radius:8px;'
                      f'color:{E["soft"]};font-size:14px;"><span style="font-family:{E["mono"]};font-size:11px;color:{E["deep"]};text-transform:uppercase;">'
                      f'Diagram, described</span><br><b style="color:{E["ink"]};">{esc(fig["claim"])}</b> {email_links(fig["email_description"])}{how}'
-                     f' <a style="color:{E["accent"]};" href="{{webpage}}#{a["id"]}">See the diagram on the web edition.</a></div>')
+                     f'<br><a style="color:{E["accent"]};font-weight:bold;" href="{{webpage}}#{a["id"]}">See the diagram in the full article on the web →</a></div>')
         paras.insert(min(fig.get("after_paragraph") or len(paras), len(paras)), block)
     tail = ""
     if a.get("try_it"):
@@ -557,7 +557,9 @@ def cmd_render(path):
         return 1
     web = render_web(issue)
     (p.parent / "web.html").write_text(web)
-    images = render_figures(issue, p.parent)
+    # Diagrams go in the email as text descriptions with a link to the web edition. The Gmail send tool
+    # strips <img> tags that point at URLs, so hosted PNGs never reach readers (see render_figures).
+    images = {}
     mail = render_email(issue, images)
     (p.parent / "email.html").write_text(mail)
     problems = parity(issue, web, mail)
