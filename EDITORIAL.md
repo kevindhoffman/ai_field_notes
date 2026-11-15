@@ -138,6 +138,7 @@ Legacy topics from the predecessor publications, for the first issues before the
   "edition": 1,                         // previous + 1
   "window": {"start": "2026-11-13", "end": "2026-11-16"},
   "title": "The proof and the permission",   // short issue title (masthead)
+  "web_path": "tests/2026-11-15",       // test runs only; real issues default to issues/<date>
   "lede": "One or two sentences (inline HTML allowed) summarizing the issue.",
   "theme": {"heading": "Where intelligence meets engineering discipline",
             "html": "Which development is the fresh lead and what thread connects the essays."},

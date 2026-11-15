@@ -54,7 +54,20 @@ python3 scripts/fieldnotes.py links  issues/D/issue.json
 
 - `render` must report **0 errors** and **parity OK**. Fix `issue.json` and rerun until it does. Treat warnings as editorial prompts: fix them or be able to justify them.
 - `links`: fix every BROKEN link. YouTube watch and Shorts URLs redirect scripts to google.com and show as UNVERIFIED; they count as verified when the URL came from the channel's feed via `fieldnotes.py youtube`. Confirm each UNVERIFIED link by reading it with `fieldnotes.py fetch` (or WebFetch); if neither can, open it in WebSearch results and note it as unverified in the report.
+- `render` also turns each diagram into `issues/D/fig-<id>.png` and embeds it in the email as an image hosted with the web edition. It should report `diagrams as images in email: N/N`. If it can't (no Playwright), the email falls back to the text description and that's acceptable; say so in the report.
 - Look at `issues/D/web.html` once for anything visibly wrong in the figures (text overflowing boxes).
+
+## 5b. Publish the web edition before sending
+
+The email links to the web edition and loads its diagram images from it, so the page must be live first.
+
+```
+python3 scripts/fieldnotes.py publish issues/D/issue.json
+git add issues/D docs && git commit -m "Issue D: web edition" && git push origin main
+python3 scripts/fieldnotes.py wait-live https://kevindhoffman.github.io/ai_field_notes/issues/D.html
+```
+
+`wait-live` polls for up to 7 minutes (GitHub Pages usually takes 1–2). If it never goes live, send anyway and report it: the email still reads fine, only the links and images are late.
 
 ## 6. Recipients
 
@@ -80,7 +93,7 @@ Never write subscriber addresses into the repository: it is public.
 
 1. Write `issues/D/sent.json`: `{"message_id": "...", "thread_id": "...", "sent_at": "<ISO time>", "recipient_count": N, "verified": true|false}`. **Counts only, no addresses.**
 2. `python3 scripts/fieldnotes.py site` rebuilds `docs/` (the GitHub Pages archive and source index).
-3. Commit `issues/D/` and `docs/` with the message `Issue D: <top headline>`, then push to `main` (the owner authorized issue commits to `main`). If the push fails, retry up to 4 times with backoff (2s, 4s, 8s, 16s). If it still fails, report it: the email has already gone out, so don't resend.
+3. Commit `issues/D/` and `docs/` with the message `Issue D: <top headline>` (this adds `sent.json`, `candidates.json` and the archive index; the web edition went out in 5b), then push to `main` (the owner authorized issue commits to `main`). If the push fails, retry up to 4 times with backoff (2s, 4s, 8s, 16s). If it still fails, report it: the email has already gone out, so don't resend.
 4. Publish the web edition to the reading page: read `https://claude.ai/artifact/WvLpMBeUrKk3Kj8qre4MtS` with the Artifact tool (`action: "read"`), then publish `issues/D/web.html` with `url` set to that artifact, so the same link updates.
 
 ## Test mode
@@ -91,7 +104,8 @@ Run when asked for a "TEST issue". Follow every step above, with these differenc
 - **Edition and window:** as for a real run (from `fieldnotes.py last`), unless the request names a window.
 - **Recipients:** only the owner address given in the request. Don't read the subscriber doc; no Bcc.
 - **Subject:** `[TEST] AI Field Notes | D`. Duplicate check (7.1) searches that subject.
-- **Skip all of section 8** except writing `sent.json` into the test directory: no `site`, no commit, no push, no artifact publish.
+- **Web edition:** add `"web_path": "tests/D"` to the test `issue.json` before rendering. In 5b, `publish` then writes to `docs/tests/D.html` (not linked from the archive index), and you commit and push only `docs/tests/`, so the test email's links and diagram images work.
+- **Skip the rest of section 8** except writing `sent.json` into the test directory: no `site`, no other commit, no artifact publish.
 - Report the usual summary plus anything in this runbook that was unclear or got in the way.
 
 ## 9. Final report

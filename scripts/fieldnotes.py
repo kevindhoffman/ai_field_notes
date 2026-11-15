@@ -6,6 +6,8 @@
     python3 scripts/fieldnotes.py render   issues/D/issue.json   writes web.html + email.html, checks parity
     python3 scripts/fieldnotes.py links    issues/D/issue.json   checks every cited URL responds
     python3 scripts/fieldnotes.py site                      rebuilds the docs/ archive (GitHub Pages)
+    python3 scripts/fieldnotes.py publish  issues/D/issue.json   copies one web edition + diagram PNGs into docs/ (before sending)
+    python3 scripts/fieldnotes.py wait-live URL               waits until a GitHub Pages URL is live
     python3 scripts/fieldnotes.py fetch URL [--links] [--max N]   reads a page as plain text (research; see RUNBOOK)
     python3 scripts/fieldnotes.py youtube @handle [--since YYYY-MM-DD]  lists a channel's recent videos from its RSS feed
 
@@ -352,15 +354,37 @@ def e_para(p):
     return f'<p style="margin:0 0 14px;">{email_links(p)}</p>'
 
 
-def email_article(a, n=1):
+def web_path(issue):
+    """Where the web edition lives on the site, without extension: issues/D (real) or tests/D (test runs)."""
+    return issue.get("web_path") or f"issues/{issue['date']}"
+
+
+def web_url(issue):
+    return f"{SITE_URL}{web_path(issue)}.html"
+
+
+def fig_name(aid):
+    return f"fig-{aid}.png"
+
+
+def email_article(a, n=1, images=None):
     paras = [e_para(p) for p in a["paragraphs"]]
     fig = a.get("figure")
     if fig:
         how = f' <b style="color:{E["ink"]};">How to read it:</b> {email_links(fig["how_to_read"])}' if fig.get("how_to_read") else ""
-        block = (f'<div style="margin:4px 0 16px;padding:12px 14px;background:{E["surface"]};border:1px solid {E["border"]};border-radius:8px;'
-                 f'color:{E["soft"]};font-size:14px;"><span style="font-family:{E["mono"]};font-size:11px;color:{E["deep"]};text-transform:uppercase;">'
-                 f'Diagram, described</span><br><b style="color:{E["ink"]};">{esc(fig["claim"])}</b> {email_links(fig["email_description"])}{how}'
-                 f' <a style="color:{E["accent"]};" href="{SITE_URL}issues/{{date}}.html#{a["id"]}">See the diagram on the web edition.</a></div>')
+        img_url = (images or {}).get(a["id"])
+        if img_url:
+            # The diagram itself, as a PNG hosted with the web edition; the description stays as alt text.
+            block = (f'<div style="margin:4px 0 16px;background:{E["surface"]};border:1px solid {E["border"]};border-radius:8px;overflow:hidden;">'
+                     f'<a href="{{webpage}}#{a["id"]}"><img src="{img_url}" width="600" alt="{esc(strip_tags(fig["email_description"]))}" '
+                     f'style="display:block;width:100%;max-width:600px;height:auto;border:0;"></a>'
+                     f'<div style="padding:10px 14px;color:{E["soft"]};font-size:14px;border-top:1px solid {E["border"]};">'
+                     f'<b style="color:{E["ink"]};">{esc(fig["claim"])}</b> {email_links(fig["caption"])}{how}</div></div>')
+        else:
+            block = (f'<div style="margin:4px 0 16px;padding:12px 14px;background:{E["surface"]};border:1px solid {E["border"]};border-radius:8px;'
+                     f'color:{E["soft"]};font-size:14px;"><span style="font-family:{E["mono"]};font-size:11px;color:{E["deep"]};text-transform:uppercase;">'
+                     f'Diagram, described</span><br><b style="color:{E["ink"]};">{esc(fig["claim"])}</b> {email_links(fig["email_description"])}{how}'
+                     f' <a style="color:{E["accent"]};" href="{{webpage}}#{a["id"]}">See the diagram on the web edition.</a></div>')
         paras.insert(min(fig.get("after_paragraph") or len(paras), len(paras)), block)
     tail = ""
     if a.get("try_it"):
@@ -384,12 +408,13 @@ def email_article(a, n=1):
             + e_sources(a["sources"]) + "</td></tr>")
 
 
-def render_email(issue):
+def render_email(issue, images=None):
+    """images: {article id: absolute PNG URL} for diagrams published with the web edition."""
     arts = issue["articles"]
     rows = []
     rows.append(f'<tr><td style="padding:8px 0 18px;">'
                 f'<p style="margin:0 0 6px;color:{E["muted"]};font-family:{E["mono"]};font-size:12px;">Edition {issue["edition"]} · {esc(long_date(issue["date"]))} · '
-                f'<a style="color:{E["accent"]};" href="{SITE_URL}issues/{issue["date"]}.html">Read on the web</a></p>'
+                f'<a style="color:{E["accent"]};" href="{web_url(issue)}">Read on the web</a></p>'
                 + (f'<p style="margin:0 0 4px;color:{E["deep"]};font-family:{E["mono"]};font-size:12px;text-transform:uppercase;letter-spacing:.08em;">AI Field Notes</p>'
                    f'<h1 style="margin:0 0 10px;font-size:32px;line-height:1.1;color:{E["ink"]};">{esc(issue["title"])}</h1>' if issue.get("title")
                    else f'<h1 style="margin:0 0 10px;font-size:34px;line-height:1.05;color:{E["ink"]};">AI Field Notes</h1>')
@@ -410,7 +435,7 @@ def render_email(issue):
                   f'<a style="color:{E["accent"]};" href="#{a["id"]}">{esc(a["headline"])}</a></li>' for i, a in enumerate(arts, 1))
     rows.append(f'<tr><td style="padding:0 0 10px;"><p style="margin:0 0 6px;color:{E["deep"]};font-family:{E["mono"]};font-size:11px;text-transform:uppercase;">{"Contents" if issue.get("theme") else "In this issue"}</p>'
                 f'<ul style="margin:0;padding-left:18px;font-size:14px;color:{E["soft"]};">{toc}</ul></td></tr>')
-    rows += [email_article(a, i).replace("{date}", issue["date"]) for i, a in enumerate(arts, 1)]
+    rows += [email_article(a, i, images).replace("{webpage}", web_url(issue)) for i, a in enumerate(arts, 1)]
     for key, heading, intro in LIST_SECTIONS:
         if not issue.get(key):
             continue
@@ -441,7 +466,7 @@ def render_email(issue):
             f'<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:100%;max-width:640px;font-family:{E["sans"]};font-size:16px;line-height:1.6;color:{E["ink"]};">'
             # Gmail disables in-message anchors (href="#a1" becomes javascript:void), so point them
             # at the same anchor in the web edition, which works in every client.
-            + re.sub(r'href="#([\w-]+)"', lambda m: f'href="{SITE_URL}issues/{issue["date"]}.html#{m.group(1)}"', "".join(rows))
+            + re.sub(r'href="#([\w-]+)"', lambda m: f'href="{web_url(issue)}#{m.group(1)}"', "".join(rows))
             + "</table></td></tr></table></body></html>")
 
 
@@ -530,12 +555,21 @@ def cmd_render(path):
     if cmd_validate(path):
         print("not rendering: fix the errors above")
         return 1
-    web, mail = render_web(issue), render_email(issue)
+    web = render_web(issue)
     (p.parent / "web.html").write_text(web)
+    images = render_figures(issue, p.parent)
+    mail = render_email(issue, images)
     (p.parent / "email.html").write_text(mail)
     problems = parity(issue, web, mail)
     size = len(mail.encode())
     print(f"wrote {p.parent/'web.html'} ({len(web.encode()):,} bytes) and {p.parent/'email.html'} ({size:,} bytes)")
+    n_figs = sum(1 for a in issue["articles"] if a.get("figure"))
+    if n_figs:
+        print(f"diagrams as images in email: {len(images)}/{n_figs}"
+              + ("" if len(images) == n_figs else "  (missing ones fall back to the text description)"))
+        if images:
+            print(f"publish before sending: python3 scripts/fieldnotes.py publish {path}   "
+                  f"(email images point at {SITE_URL}{web_path(issue)}/)")
     arts = issue["articles"]
     print(f"articles {len(arts)}, words {sum(words(x) for a in arts for x in a['paragraphs']):,}, "
           f"sources {len({s['url'] for a in arts for s in a['sources']})}, figures {sum(1 for a in arts if a.get('figure'))}")
@@ -590,13 +624,77 @@ def cmd_last():
     return 0
 
 
+def render_figures(issue, folder):
+    """Render each diagram in folder/web.html to folder/fig-<id>.png. Returns {id: public URL} for the email.
+    Needs node + Playwright (preinstalled in the cloud environment); returns {} if unavailable."""
+    import subprocess
+    if not any(a.get("figure") for a in issue["articles"]):
+        return {}
+    try:
+        r = subprocess.run(["node", str(ROOT / "scripts" / "figures.js"), str(folder / "web.html"), str(folder)],
+                           capture_output=True, text=True, timeout=180)
+    except Exception as e:  # noqa: BLE001
+        print(f"WARN  could not render diagram images ({type(e).__name__}: {e}); email keeps text descriptions")
+        return {}
+    if r.returncode:
+        print(f"WARN  could not render diagram images: {r.stderr.strip()[:300]}; email keeps text descriptions")
+        return {}
+    return {a["id"]: f"{SITE_URL}{web_path(issue)}/{fig_name(a['id'])}"
+            for a in issue["articles"] if a.get("figure") and (folder / fig_name(a["id"])).exists()}
+
+
+def publish_issue(issue, folder, archive_link=True):
+    """Write one web edition and its diagram PNGs into docs/ at web_path(issue)."""
+    import shutil
+    out = DOCS / f"{web_path(issue)}.html"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(render_web(issue, archive_link=archive_link))
+    figs = [f for f in (folder / fig_name(a["id"]) for a in issue["articles"] if a.get("figure")) if f.exists()]
+    if figs:
+        (DOCS / web_path(issue)).mkdir(parents=True, exist_ok=True)
+        for f in figs:
+            shutil.copy(f, DOCS / web_path(issue) / f.name)
+    return out, len(figs)
+
+
+def cmd_publish(path):
+    """Copy one issue's web edition and diagram images into docs/ (use before sending, then commit and push docs/)."""
+    p, issue = load(path)
+    if not (p.parent / "web.html").exists():
+        print("render first: python3 scripts/fieldnotes.py render " + str(path))
+        return 1
+    out, n = publish_issue(issue, p.parent, archive_link=not web_path(issue).startswith("tests/"))
+    print(f"wrote {out} and {n} diagram image(s). Commit and push docs/, then run: "
+          f"python3 scripts/fieldnotes.py wait-live {web_url(issue)}")
+    return 0
+
+
+def cmd_wait_live(url, timeout=420):
+    """Poll a URL until it returns 200 (GitHub Pages takes a minute or two after a push)."""
+    import time
+    start = time.time()
+    while True:
+        req = urllib.request.Request(url, method="GET", headers={"User-Agent": "Mozilla/5.0 (AI Field Notes)", "Cache-Control": "no-cache"})
+        try:
+            with urllib.request.urlopen(req, timeout=20) as r:
+                if r.status == 200:
+                    print(f"LIVE {url} after {int(time.time() - start)}s")
+                    return 0
+        except Exception as e:  # noqa: BLE001
+            last = getattr(e, "code", type(e).__name__)
+        if time.time() - start > timeout:
+            print(f"NOT LIVE after {timeout}s ({last}): {url}")
+            return 1
+        time.sleep(15)
+
+
 def cmd_site():
     DOCS.mkdir(exist_ok=True)
     (DOCS / "issues").mkdir(exist_ok=True)
     (DOCS / ".nojekyll").write_text("")
     issues = all_issues()
     for p, i in issues:
-        (DOCS / "issues" / f"{i['date']}.html").write_text(render_web(i, archive_link=True))
+        publish_issue(i, p.parent, archive_link=True)
     lis = []
     for p, i in reversed(issues):
         heads = "".join(f'<li><a href="issues/{i["date"]}.html#{a["id"]}">{esc(a["headline"])}</a></li>' for a in i["articles"])
@@ -793,6 +891,10 @@ def main(argv):
     if cmd == "youtube" and rest:
         since = rest[rest.index("--since") + 1] if "--since" in rest else None
         return cmd_youtube(rest[0], since=since)
+    if cmd == "publish" and rest:
+        return cmd_publish(rest[0])
+    if cmd == "wait-live" and rest:
+        return cmd_wait_live(rest[0])
     if cmd == "fetch" and rest:
         mx = int(rest[rest.index("--max") + 1]) if "--max" in rest else 40000
         return cmd_fetch(rest[0], show_links="--links" in rest, max_chars=mx)
