@@ -352,7 +352,10 @@ def render_email(issue):
             f'<body style="margin:0;padding:0;background:{E["canvas"]};">'
             f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{E["canvas"]};"><tr><td align="center" style="padding:24px 12px;">'
             f'<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:100%;max-width:640px;font-family:{E["sans"]};font-size:16px;line-height:1.6;color:{E["ink"]};">'
-            + "".join(rows) + "</table></td></tr></table></body></html>")
+            # Gmail disables in-message anchors (href="#a1" becomes javascript:void), so point them
+            # at the same anchor in the web edition, which works in every client.
+            + re.sub(r'href="#([\w-]+)"', lambda m: f'href="{SITE_URL}issues/{issue["date"]}.html#{m.group(1)}"', "".join(rows))
+            + "</table></td></tr></table></body></html>")
 
 
 # ---------------------------------------------------------------- parity check
