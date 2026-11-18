@@ -44,6 +44,8 @@ builders:               # people showing how to apply AI in daily work; scan eve
   - {name: "Every (AI & I)", youtube: "@EveryInc", url: "https://every.to/", roster: true,
      note: "Hands-on model comparisons and workflow interviews. Many Shorts; prefer full episodes."}
   - {name: Riley Brown, youtube: "@rileybrownai", roster: true, note: "Weekly roundup of AI work tools, building apps with AI; accessible to non-engineers."}
+  - {name: Ray Amjad, youtube: "@RAmjad", url: "https://www.agenticcoding.school/newsletter", roster: true,
+     note: "Claude Code and agentic-coding deep dives on new harness features. Says no sponsors, but promotes his own courses and products."}
 
 builders_rotating:      # scan when time allows, use for discovery; feature when they have the best applied item
   - {name: Mckay Wrigley, youtube: "@realmckaywrigley", note: "Inactive since Jul 2025; check occasionally."}
