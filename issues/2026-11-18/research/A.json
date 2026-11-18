@@ -1,0 +1,206 @@
+{
+  "candidates": [
+    {
+      "title": "External sandboxes for coding agents",
+      "author": "Simon Willison",
+      "organization": "Simon Willison's Weblog (work done with Prime Radiant)",
+      "url": "https://simonwillison.net/2026/Nov/17/external-sandboxes-for-coding-agents/",
+      "pub_date": "2026-11-17 (10:52 pm, confirmed on page)",
+      "event_date": "2026-11-17",
+      "paywall": "none",
+      "what_changed": "Simon and Prime Radiant introduce the 'external sandbox' pattern and release three open-source sandbox server implementations that coding agents (Pi, Claude Code, Codex) can call to execute code.",
+      "mechanism": "The agent process lives outside the sandbox; only code it wants to execute is sent over a common localhost API to a dedicated sandbox server. Three back ends share the same API: external-sandbox-v86 (Node.js server running Alpine Linux in WebAssembly via v86), external-sandbox-container (Python server, Alpine in Apple Containers), external-sandbox-quicksand (Python server using Microsoft's Quicksand library, which bundles QEMU + Alpine in a Python package). Optional HTTP/HTTPS allow-list proxy controls which hosts executed code can reach, reconfigurable live via a UI; a credential-replacement mechanism lets sandboxed code make authenticated API calls without the secret ever being shared with the agent.",
+      "evidence_quality": "Practitioner link-post describing released code; no benchmarks or threat-model evaluation. The fuller write-up is on the Prime Radiant blog (blog.primeradiant.com) which could NOT be fetched (egress proxy 403), and GitHub repo pages returned HTTP 403, so repo details (licence, setup steps, API shape) are UNVERIFIED.",
+      "independent_confirmation": "Latent Space AI News (Nov 17) summarises the post (allow-list proxies, credential replacement, WASM/QEMU/Apple Container) but cites Simon's post, so not independent.",
+      "relevance": "HIGH. Directly tryable this week: point your coding agent's execution at a sandbox server, restrict egress with an allow-list, keep secrets out of the agent's context. Especially useful for running local/open-weight models with less trust.",
+      "overlap_with_prior": "Related to Edition 1's security theme ('if the limit lives in the prompt, the agent will find the way around it'): this is a concrete enforcement-layer implementation (network allow-list + credential injection outside the agent), so it is materially new as a how-to, but should be framed as a follow-up rather than a repeat.",
+      "summary": "Simon Willison has been exploring ways to sandbox code executed by agents, focusing on making it safer to try local models without a mistake or prompt-injection attack causing damaging actions on the host. With Prime Radiant (the lab behind Superpowers) he introduces the external sandbox pattern: the agent runs outside, and any code it wants to run is sent to a separate sandbox. Three implementations with an identical localhost API: (1) external-sandbox-v86 — Node.js server using v86 to run Alpine Linux inside WebAssembly; (2) external-sandbox-container — Python web server running Alpine in an Apple Containers instance; (3) external-sandbox-quicksand — Python web server using Microsoft's Quicksand, which bundles QEMU and Alpine Linux in a pip-installable package. Pi, Claude Code or Codex can be configured to send API calls to the sandbox whenever they want to execute code. Optional HTTP/HTTPS allow-list proxy lets you control exactly which hosts the agent's code can talk to, reconfigurable while the sandbox is running via a UI; a credential replacement mechanism lets code make authenticated calls without sharing the secret with the agent (same idea as proxy-side secret injection). Repos: github.com/prime-radiant-inc/external-sandbox-v86, -container, -quicksand (links from post; contents UNVERIFIED, GitHub returned 403). Primary write-up: https://blog.primeradiant.com/external-sandboxes-for-coding-agents/ (UNVERIFIED, blocked)."
+    },
+    {
+      "title": "GPT‑6.2 Astra and GPT‑6.2 Sol",
+      "author": "Simon Willison",
+      "organization": "Simon Willison's Weblog (link post on OpenAI announcement)",
+      "url": "https://simonwillison.net/2026/Nov/17/gpt62-astra-and-sol/",
+      "pub_date": "2026-11-17 (10:38 pm, confirmed on page)",
+      "event_date": "2026-11-17 (OpenAI release; OpenAI page not fetched, date UNVERIFIED beyond Simon's post)",
+      "paywall": "none",
+      "what_changed": "OpenAI released GPT-6.2 Astra (frontier) and GPT-6.2 Sol (efficient) in the API as gpt-6.2-astra and gpt-6.2-sol; Astra price cut 20% with a large cached-input discount. Simon shipped LLM 0.38 supporting both.",
+      "mechanism": "Pricing: 6.2 Astra $8/MTok input, $40/MTok output (80% of 6 Astra's $10/$50; same as Claude Fable 5.2). Cached input $0.40/M vs $1/M for older model. 6.2 Sol stays at $2/$10 (same as 6.1 Sol and 6 Sol; half GPT-5.6 Sol's $4/$20).",
+      "evidence_quality": "Pricing quoted from OpenAI via Simon; qualitative pelican/benchmark-prompt tests are anecdotal (n=1). Claims that Astra 6.2 scores below Fable 5.2 on 'various benchmarks' are unsourced on the page. OpenAI announcement (https://openai.com/index/introducing-gpt-6-2-astra-sol/) not fetched: UNVERIFIED directly.",
+      "independent_confirmation": "None fetched in-window from other sources in slice A; Theo Browne review quoted (pre-release feedback letter).",
+      "relevance": "MEDIUM-HIGH for cost planning: the cached-input price drop (60% cut) matters for long agentic sessions with large stable prefixes; teams can re-run cost per task. Also a useful practitioner caution: long-running /goal tasks with many subagents may block on unanswerable internal questions (Theo Browne's example: 2 hours into '/goal make a new level for Outer Wilds' it blocked asking about clip file names).",
+      "overlap_with_prior": "Edition 1 covered cost per solved task / termination lag; the 'blocked on weird internal question' anecdote links to termination/escalation behaviour. Model release itself is new.",
+      "summary": "OpenAI introduced GPT-6.2 Astra ('frontier model for your hardest projects') and GPT-6.2 Sol ('efficient, versatile model for everyday work'), API IDs gpt-6.2-astra and gpt-6.2-sol; LLM 0.38 supports them. Astra 6.2: $8 in / $40 out per MTok, 80% of 6 Astra; matches Claude Fable 5.2, which was also 80% of its predecessor (6 Astra and Fable 5 were both $10/$50). Cached input $0.40/M vs $1/M previously — 'great news for longer running agentic sessions'. Sol 6.2: $2/$10, unchanged. Simon ran his pelican grid (high/xhigh/max effort) and his Yonkers-mech three.js benchmark prompt at 'Ultra' effort in Codex CLI; neither did as well as Claude Fable 5.2 and Gemini 4 Carbon. He used Astra (Ultra) in the Codex desktop app to build a 2000x2000 split-screen comparison video by prompting. Reception mixed: Astra 6.2 not scoring as high as Fable 5.2 on various benchmarks, complaints about confusing communication. Theo Browne: on long tasks it manages many subagents well but then asks the user incomprehensible internal implementation questions, e.g. blocking 2 hours into a /goal run to ask which file a reviewer writes clips to."
+    },
+    {
+      "title": "Running the full server-side Datasette Python app in the browser with service workers and Pyodide",
+      "author": "Simon Willison",
+      "organization": "Simon Willison's Weblog / Datasette",
+      "url": "https://simonwillison.net/2026/Nov/17/datasette-lite/",
+      "pub_date": "2026-11-17 (4:48 pm, confirmed on page)",
+      "event_date": "2026-11-17",
+      "paywall": "none",
+      "what_changed": "Complete rewrite of Datasette Lite using service workers; now nearly indistinguishable from server-side Datasette, with URL params to pick Datasette version/commit, SQLite version, plugins. New repo of WASM pysqlite3 wheels for many SQLite versions.",
+      "mechanism": "Service worker registered for lite.datasette.io intercepts requests from an iframe to /app/<session-id>/... URLs; random per-tab session ID routes each request back through the parent page to a dedicated Pyodide web worker running that tab's Datasette instance (web worker needed because Pyodide in a service worker can't keep state beyond ~30s). URL params: ?install= (PyPI plugins/wheels, repeatable), &url= (DB, needs open CORS; Gists used), &metadata=, ?ref= (release/commit/tag/branch), ?sqlite=3.54.1 (fetches matching wheel from datasette/pysqlite3-wasm-wheels and installs it), #fragment for in-app location.",
+      "evidence_quality": "First-hand project write-up with working demo URLs. Minor internal inconsistency on page: says 'over 100 versions of SQLite', '87 further releases since 3.25', and wheels for '163 different SQLite versions'.",
+      "independent_confirmation": "None (newsletter subtitle on Simon's own Substack echoes it).",
+      "relevance": "MEDIUM. AI angle: system started as an AI research spike generated with Claude Opus 4.8 in May, shipped only after Claude Fable 5.2 helped him understand it; Claude Fable 5.2 generated SVG diagrams and a SQLite version-comparison tool. Practical pattern: WASM/Pyodide preview environments for bug repros and demos in PRs; coding agents can now compile C/Rust extensions to Pyodide WASM (PEP 783, April 2026 allows publishing to PyPI).",
+      "overlap_with_prior": "Edition 1 cited datasette-maplibre (Nov 15) — this post uses datasette-maplibre as its demo. Distinct item but adjacent; avoid re-covering the plugin.",
+      "summary": "Datasette Lite (launched 2022) previously ran Datasette in a Pyodide web worker and injected HTML via innerHTML, so script tags didn't execute and JS/CSS plugins failed. The rewrite uses Service Workers: the parent page creates an iframe whose requests go to /app/<session>/ prefixed URLs; the shared service worker uses the session ID to route each request back via the parent page to a dedicated web worker running Datasette for that tab, so multiple tabs with different plugin configurations don't share one instance. Features: load any SQLite DB, JSON, CSV or SQL script by URL; pick Datasette release from PyPI or a GitHub commit/tag/branch (?ref=); install plugins from PyPI or wheel URLs incl. JS visualization plugins; pick SQLite version (?sqlite=). Use case: linking demos of WIP features and bug reproductions in issues, e.g. a pagination bug shown with ?ref=1.0a42 (broken) vs ?ref=1.0a43 (fixed). New repo datasette/pysqlite3-wasm-wheels holds WASM pysqlite3 wheels for 163 SQLite versions (e.g. pysqlite3-0.6.2-3.54.1-cp314-cp314-pyemscripten_2026_0_wasm32.whl); Claude Fable 5.2 built a tool to compare a SQL query across SQLite versions. Simon argues almost any Python app could do this as cheap preview environments; coding agents can compile C/Rust extensions to Pyodide-compatible WASM, publishable to PyPI per PEP 783 (April 2026). Catch: Postgres/MySQL in WASM still less trodden."
+    },
+    {
+      "title": "llm 0.37.3",
+      "author": "Simon Willison",
+      "organization": "LLM (CLI tool) release",
+      "url": "https://github.com/simonw/llm/releases/tag/0.37.3",
+      "pub_date": "2026-11-16 (11:57 pm per Simon's Nov 16 day archive https://simonwillison.net/2026/Nov/16/; GitHub release page not fetched, returned 403 for GitHub generally)",
+      "event_date": "2026-11-16",
+      "paywall": "none",
+      "what_changed": "Bug-fix release of LLM addressing breakage in logging code caused by SQLite 3.54.1 (shipped in Homebrew).",
+      "mechanism": "In SQLite 3.54.0, select json_object('a', (select json_array(1))) returned {\"a\":[1]}; in 3.54.1 it returns {\"a\":\"[1]\"}. D. Richard Hipp: 3.54.1 is correct, a subquery returning json_array returns SQL text, not JSON. Workaround: wrap with json(): select json_object('a', json((select json_array(1)))).",
+      "evidence_quality": "First-hand maintainer note with quoted SQLite author; reproducible SQL.",
+      "independent_confirmation": "Simon's Datasette Lite post includes a tool demonstrating the same difference between 3.54.0 and 3.54.1. SQLite release log link not fetched (UNVERIFIED).",
+      "relevance": "MEDIUM-LOW as a brief: anyone storing LLM/agent logs as JSON in SQLite (nested json_object/json_array subqueries) may see silently stringified JSON after upgrading to SQLite 3.54.1; fix is to wrap with json().",
+      "overlap_with_prior": "None.",
+      "summary": "Posted in Simon's 'Release' feed on 16 Nov at 11:57 pm (after Edition 1 went out). Homebrew now ships SQLite 3.54.1, which fixed a bug in 3.54.0 that LLM's logging code had relied on: nested (SELECT json_array(...)) inside json_object now yields a string rather than embedded JSON. Fix: json((select json_array(1))). Tracking issue https://github.com/simonw/llm/issues/1879 (UNVERIFIED, not fetched). Good one-paragraph brief for anyone with SQLite-backed telemetry."
+    },
+    {
+      "title": "Cloudflare Joins the Jevolution and Labels Itself a Neolab",
+      "author": "Richard MacManus",
+      "organization": "Latent Space",
+      "url": "https://latent.space/p/cloudflare/",
+      "pub_date": "2026-11-17 (15:00 UTC, confirmed on page)",
+      "event_date": "Talk at AI Engineer Code Summit (date not stated on page, UNVERIFIED) plus post-talk interview with Michelle Chen",
+      "paywall": "none (free article)",
+      "what_changed": "Cloudflare's AI Platform product lead says Cloudflare is now building its own models: two 'System One' models, Clef (a decision model cloning TypeSafe AI's Jev, built in two weeks) and Clairic (a 'System One extraction model'), with possible post-trained reasoning models/LLMs later.",
+      "mechanism": "System One models route some requests away from LLMs to small fast models answering in milliseconds. Clairic takes unstructured input and extracts/computes/estimates/forecasts typed values (e.g. an invoice's order number) in one forward pass, avoiding autoregressive hallucination and malformed JSON. Team mostly does post-training, not from-scratch pretraining. Rationale includes derisking dependence on closed or license/regulation-risky third-party models.",
+      "evidence_quality": "Reported interview/talk; vendor claims, no benchmarks or accuracy numbers for Clef/Clairic on the page. Revenue figures quoted from Cloudflare Q3 press release ($782M quarter, $3B annualized, +39% YoY).",
+      "independent_confirmation": "Clairic launch blog linked (https://blog.cloudflare.com/clairic-extraction-model/, not fetched, UNVERIFIED).",
+      "relevance": "MEDIUM. Applied takeaway: for structured extraction (invoices, typed fields) and decisions, consider a small dedicated extraction/decision model on Workers AI instead of an LLM call, for latency and reliability. Needs evals before adoption.",
+      "overlap_with_prior": "Edition 1 Operations theme (routing to the right model / cheaper model) is adjacent; Cloudflare was cited in Ed 1 for security/spend posts but not this.",
+      "summary": "Michelle Chen (Cloudflare AI Platform, product) presented at AI Engineer Code Summit that Cloudflare is a 'neolab'. It launched two System One models: Clef, a decision model directly inspired by and copying the API schema of TypeSafe AI's Jev (Chen: two weeks to build vs TypeSafe's two years, credit to TypeSafe), and Clairic, launched last month as 'the first model in a new class: System One extraction models' that takes unstructured input and extracts, computes, estimates and forecasts values. Motivation: 'We don't have to send every request to an LLM'; LLMs are autoregressive, hallucinate and sometimes return malformed JSON; invoice order-number example. Plans: possibly reasoning models and other LLMs built by post-training existing open models, not pre-training. Also derisking: Jev was closed source, Chinese open models may face regulatory risk, labs may enforce expensive licences. Cloudflare progression: infra -> compute (Workers, incl. agents) -> storage -> serving open-weight models (Kimi, GLM, DeepSeek on Workers AI) -> own models. Neolab definition attributed to Stephanie Palazzolo (The Information); Deedy Das list."
+    },
+    {
+      "title": "Perplexity hits a $1B revenue run rate, up 4x in 2026",
+      "author": "swyx (AI News)",
+      "organization": "Latent Space",
+      "url": "https://latent.space/p/ainews-perplexity-hits-a-1b-revenue-run-rate-up-4x-in-2026/",
+      "pub_date": "2026-11-17 (09:24 UTC per page timestamp; dateline on page reads 'November 16, 2026')",
+      "event_date": "2026-11-16",
+      "paywall": "none (free web version)",
+      "what_changed": "Daily briefing. Lead: Perplexity $1B run rate; Computer Teammates; Monitor API (webhook when a watched topic/page changes). Contains many applied pointers worth chasing to primary sources.",
+      "mechanism": "Aggregated news digest; each item links a primary source (not fetched).",
+      "evidence_quality": "Secondary aggregation; all items below are UNVERIFIED until checked at their primary links.",
+      "independent_confirmation": "Lead story attributed to Semafor live event and The Information.",
+      "relevance": "MEDIUM as a lead generator. Most applied leads in it: (1) Ollama found a single system-prompt timestamp or a change in reasoning effort can wipe the prefix cache; (2) Claude Code team published how it uses cheap tests, benchmarks and end-to-end runs to let Claude verify its own work; (3) Together moved from hand-tuned megakernels to agents searching for smaller GPU-op groups to fuse: +28% throughput Llama 3.2 1B on B200; (4) Inferact: pipeline-parallel PP2 on MiniMax-M3.1-Flash sustains 23% more requests/GPU than DEP2 at 2s TTFT; (5) Hugging Face Inference Providers now runs on OpenRouter with same endpoint and token; (6) Qwen4-Max HLAB caveat: 95.7% checklist items right but only 21.3% tasks passed; (7) Anthropic cutting coordinated disclosure window 90->30 days for high/critical vulns; (8) GradeBench: best frontier model agrees with instructors 57% grading handwritten physics; (9) inside-llm tool to step through two GGUF quantizations and find first divergent token; (10) Antigravity doubled context window cutting compaction 3.5x per user turn.",
+      "overlap_with_prior": "The HLAB checklist-vs-task gap echoes Ed 1's rule checks vs LLM judges theme; prefix-cache item relates to Ed 1 cost theme. Otherwise new.",
+      "summary": "Perplexity crossed $1B annual revenue run rate (Aravind Srinivas to Semafor), from <$250M at start of year and >$750M by August (The Information); implies $30-50B valuation at agent-lab multiples (Cognition >$1B, Cursor $4.6B). Launches: Computer Automations (Sept), Teammates (Nov) for ongoing jobs, runs locally on supported Macs; Monitor API webhook; Frontier Research lab with 10,000+ GPUs. Qwen4-Max ships: Intelligence Index 43 (from 34), cost/task $10.02 -> $3.27, output price $6 -> $4.50/M, ~39% fewer tokens; 2.4T total / 71B active, 1M context; Kimi K3.1 Pro $3.68/task, 67% Terminal-Bench 4.0 vs Qwen 48%. OpenAI embedded assessments with Apollo, METR, Transluce, Goodfire, with criticism of access limits. Inference: Together agent-driven kernel fusion +28%; vLLM+Dynamo DeepSeek V4.1 Flash on Vera Rubin 63.4x per-chip vs GB300 at 400 tok/s/user; MIT Evolving Infra up to 4.1x lower latency, 14x lower P95 TTFT vs Dynamo; Ollama prefix-cache pitfalls; Simon's external sandboxes; HF Inference Providers on OpenRouter. Research: PyBot swarm of 1,000 DeepSeek agents wrote a 630k-line rule-based chatbot; AutoRL Qwen3 AIME 46.67%->66.67%; DatologyAI tech report (6x compute multiplier claim). Dev tools: Claude Code desktop iOS simulator foldable testing; Claude Code verification blog; Unsloth computer use for local models. Reddit: harness developer role (harness decides repo write access, which CI test counts, when human approval needed). All UNVERIFIED at primary sources."
+    },
+    {
+      "title": "Building Visual Intelligence — Andreas Blattmann & Dustin Podell, Black Forest Labs",
+      "author": "swyx (host); guests Andreas Blattmann, Dustin Podell",
+      "organization": "Latent Space Podcast",
+      "url": "https://latent.space/p/bfl/",
+      "pub_date": "2026-11-16 (21:38 UTC, confirmed on page; after Edition 1 went out)",
+      "event_date": "2026-11-16",
+      "paywall": "none (98-min episode, transcript available)",
+      "what_changed": "Podcast with BFL on FLUX 3 (trained jointly on stills, video and audio), video upscaler derived from the FLUX 3 backbone, Kontext editing, autoregression vs diffusion trade-offs.",
+      "mechanism": "Training on image + video + audio together: video teaches motion and multi-view appearance (camera pans), audio marks contact events. Per-frame upscaling shimmers on playback; BFL's video upscaler is derived from the FLUX 3 backbone for temporal consistency. Autoregressive models learn from all tokens in an example at once; diffusion can be distilled to a handful of sampling steps — choose by whether you pay training or inference latency. Kontext began as a few-hour training run on a small relationship-labelled photo set.",
+      "evidence_quality": "Interview; qualitative claims, no numbers in show notes.",
+      "independent_confirmation": "None.",
+      "relevance": "LOW-MEDIUM for this audience (image/video gen practitioners). Usable nuggets: test video features on temporal consistency, not single-frame quality; prototype capability with a few-hours small-data run before investing.",
+      "overlap_with_prior": "None.",
+      "summary": "swyx talks with Andreas Blattmann (co-creator of Stable Diffusion/latent diffusion) and Dustin Podell (led FLUX Kontext, lead author SDXL). BFL argues for learning 'visual intelligence' from pixels, motion and sound: ball-catching example; FLUX 3 trained on the three signals together. A camera panning around a person forces the model to produce the back of their head — a better test than whether one frame looks convincing. Engineering example: independently sharpened frames shimmer on playback; BFL derives its video upscaler from FLUX 3 for temporal consistency. Autoregression vs diffusion trade-off discussed. Kontext origin: small labelled photo set, a few-hour run got logo-on-shirt editing working, then months on data and model. User story: restoring degraded family photos. Chapters include training data, testing an edit, world action models, robotics in 2027."
+    },
+    {
+      "title": "Pre-Training Without Learning Rate Decay",
+      "author": "Sebastian Raschka",
+      "organization": "sebastianraschka.com (Quick Note)",
+      "url": "https://sebastianraschka.com/blog/2026/llm-pretraining-without-learning-rate-decay.html",
+      "pub_date": "2026-11-17 (10:00 -06:00, confirmed in page metadata)",
+      "event_date": "2026-11-17",
+      "paywall": "none",
+      "what_changed": "Raschka flags a possible trend: pre-training with a constant learning rate and no decay phase, plus averaging the last N checkpoints (or a running weight average), as in Kolibri-1 and DatologyAI's models.",
+      "mechanism": "Constant LR + checkpoint/weight averaging replaces cosine decay or warmup-stable-decay; practical upside is not having to commit to total training length upfront.",
+      "evidence_quality": "Short note (website version of an X post) with a meta-tally of published recipes; no new experiments.",
+      "independent_confirmation": "Cites DatologyAI's note on weight averaging; Latent Space AI News Nov 17 mentions DatologyAI's tech report (6x pretraining compute multiplier claim, UNVERIFIED).",
+      "relevance": "LOW-MEDIUM: relevant to teams doing continued pre-training or training small models; you can stop/extend runs without re-planning the schedule and average checkpoints for the final weights.",
+      "overlap_with_prior": "Edition 1 research corner cited Raschka's positional embeddings article (Nov 15); this is a different topic.",
+      "summary": "Three schedule families tallied from labs that share training details: classic cosine decay (Llama 3, OLMo 2, OLMo 3, GLM-4.5, GLM-5, Kimi K3, Phi-4); WSD warmup-stable-decay (DeepSeek V3, V4, V4.1-Flash, Kimi K2, Kimi Linear, Nemotron 3 Nano, Nemotron 3 Super, SmolLM3, MiniMax M2); no decay, constant LR plus checkpoint averaging (Kolibri-1, DatologyAI's models). Raschka: 'This could be the start of a trend'; easier in practice because you don't commit to total training length upfront. Includes a figure comparing the three schedules."
+    },
+    {
+      "title": "Deterministic Simulation Testing",
+      "author": "Unmesh Joshi",
+      "organization": "martinfowler.com (Thoughtworks)",
+      "url": "https://martinfowler.com/articles/deterministic-simulation-testing.html",
+      "pub_date": "2026-11-17 (confirmed on page; recent-changes lists Tue 17 Nov 2026 09:33 EST)",
+      "event_date": "2026-11-17",
+      "paywall": "none",
+      "what_changed": "Long-form article on deterministic simulation testing (DST) for distributed systems with Tickloom (Java) code, including a section on using LLMs with a DST harness.",
+      "mechanism": "Replace clocks, network and storage with simulated components driven by a single-threaded tick loop; seeded fault injection (partitions, link delays/drops, disk latency) makes every run reproducible (same seed -> same faults -> same results); fast-forward execution; ConsistencyChecker verifies linearizability/crash durability. AI angle: tick-stamped fault schedule + execution logs are 'particularly effective when handed to an LLM to analyze what went wrong'; with the harness in place an LLM can translate a book diagram (DDIA quorum linearizability anomaly) into an executable scenario test (DDIA_LinearizabilityScenarioTest).",
+      "evidence_quality": "Expert practitioner article with code; LLM claims are qualitative experience, no measurements.",
+      "independent_confirmation": "References TigerBeetle, FoundationDB, etcd practices; reviewed by Martin Fowler, Rebecca Parsons, Will Wilson, Joran Dirk Greef.",
+      "relevance": "LOW-MEDIUM for AI audience: mainly distributed-systems testing. Applied AI hook: deterministic, seeded harnesses + structured logs give LLMs/coding agents reproducible failures to diagnose and a safe place to generate scenario tests; fits 'verification for agents' angle.",
+      "overlap_with_prior": "Loosely adjacent to Ed 1's 'let a rule grade what the agent did' (deterministic checkers as fitness functions).",
+      "summary": "Distributed bugs live in interactions under partial failure ('gray failures'). DST: single-threaded execution, simulated network with message routing, timeouts in ticks (TigerBeetle tick_ms=10; etcd 100ms ticker, 10-tick election timeout), seeded fault injection, fast-forward execution, correctness checking, simulated file system, non-blocking futures. Determinism rules enforced via ArchUnit static checks plus runtime thread-confinement (TickCompletableFuture rejects calls from non-owner threads). Seeded FaultInjectingSimulationRunner + ConsistencyChecker act as a holistic fitness function. Production cost: single-threaded async batched IO often performs better (Redis, FoundationDB, TigerBeetle); scale via multiple processes. Section 'Learning and the Use of LLMs': harness lets LLMs act as natural-language interface to build/explore systems; LLM generates executable scenario tests from textbook diagrams; tick-stamped logs ideal for LLM diagnosis."
+    }
+  ],
+  "roster": [
+    {
+      "source": "Simon Willison",
+      "posts_in_window": 4,
+      "latest_post_date": "2026-11-17",
+      "latest_post_title": "External sandboxes for coding agents",
+      "notes": "Checked day archives Nov 16 (200: one release post, llm 0.37.3, 11:57 pm), Nov 17 (200), Nov 18 (HTTP 404 = no day archive yet; homepage latest is Nov 17). Non-AI items in window skipped: bird sighting, Go Proverbs quote. Linked Prime Radiant blog (blog.primeradiant.com) blocked: 'URLError: <urlopen error Tunnel connection failed: 403 Forbidden>' (egress proxy connect_rejected); github.com pages returned HTTP 403."
+    },
+    {
+      "source": "Latent Space",
+      "posts_in_window": 3,
+      "latest_post_date": "2026-11-17",
+      "latest_post_title": "Cloudflare Joins the Jevolution and Labels Itself a Neolab",
+      "notes": "Archive checked (latent.space/archive). In window: BFL podcast (Nov 16 21:38 UTC), AI News Perplexity (Nov 17 09:24 UTC), Cloudflare article (Nov 17 15:00 UTC). Nothing dated Nov 18 yet."
+    },
+    {
+      "source": "Hamel Husain",
+      "posts_in_window": 0,
+      "latest_post_date": "2026-10-20",
+      "latest_post_title": "How To Use Decision Models for Evals",
+      "notes": "Reached hamel.dev (200); blog index latest 10/20/26."
+    },
+    {
+      "source": "Eugene Yan",
+      "posts_in_window": 0,
+      "latest_post_date": "2026-06-30",
+      "latest_post_title": "AI Engineer 2026 - Using LLMs to Secure Source Code",
+      "notes": "Reached eugeneyan.com and /writing (200). Latest writing post 'Patterns for Building Cybersecurity Evals' published 2026-06-21; latest item overall is the speaking page dated 2026-06-30."
+    },
+    {
+      "source": "Chip Huyen",
+      "posts_in_window": 0,
+      "latest_post_date": "2025-01-16",
+      "latest_post_title": "Common pitfalls when building generative AI applications",
+      "notes": "Reached huyenchip.com/blog (200); no posts since Jan 2025."
+    },
+    {
+      "source": "Martin Fowler",
+      "posts_in_window": 1,
+      "latest_post_date": "2026-11-17",
+      "latest_post_title": "Deterministic Simulation Testing",
+      "notes": "Checked recent-changes.html and /fragments/ (200). Fragments latest Nov 10 (Tech Radar), Bliki 'Generated Glossary' Nov 12 (outside window). DST article (Unmesh Joshi) has an LLM section; mainly distributed-systems testing."
+    },
+    {
+      "source": "Jason Liu",
+      "posts_in_window": 0,
+      "latest_post_date": "2026-07-05",
+      "latest_post_title": "If You Want Taste, You're Gonna Have to Eat",
+      "notes": "Reached jxnl.co and /writing (200); latest dated post 2026/07/05 (Personal). Most recent Applied AI post 2026/06/28 'Two kinds of scheduled work in Codex'."
+    },
+    {
+      "source": "Sebastian Raschka, Ahead of AI",
+      "posts_in_window": 1,
+      "latest_post_date": "2026-11-17",
+      "latest_post_title": "Pre-Training Without Learning Rate Decay",
+      "notes": "Substack archive latest is Nov 15 'Understanding Positional Embeddings in Modern LLMs' (already in Edition 1). sebastianraschka.com/blog has Quick Note Nov 17 in window."
+    }
+  ]
+}
