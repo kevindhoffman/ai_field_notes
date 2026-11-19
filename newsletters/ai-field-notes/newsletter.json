@@ -1,0 +1,22 @@
+{
+  "name": "AI Field Notes",
+  "slug": "ai-field-notes",
+  "subject": "AI Field Notes | {date}",
+  "masthead": "AI Field Notes",
+  "masthead_html": "AI Field <span>Notes</span>",
+  "description": "A technical magazine on engineering AI systems: agents, evaluation, retrieval, context, security, operations and their tradeoffs.",
+  "footer": "A technical magazine on engineering AI systems, published Monday, Wednesday and Friday. Compiled by Claude, an Anthropic model. Measured evidence, vendor claims and editorial inference are labeled as such.",
+  "web_base": "",
+  "subscriber_doc": {"title": "AI Field Notes - Subscribers", "id": "1ZvP1Yu4GaU0BSacKhYXDAbsda6vkyyxW7xlpOZx0aBw"},
+  "artifact_url": "https://claude.ai/artifact/WvLpMBeUrKk3Kj8qre4MtS",
+  "timezone": "America/New_York",
+  "days": "Mon · Wed · Fri",
+  "schedule": "Mon, Wed, Fri at 3:47 AM America/New_York (documentation only: the scheduled task is the real trigger; keep the two in sync)",
+  "research_slices": {
+    "A": "practitioners, first half of the list",
+    "B": "practitioners, second half",
+    "C": "labs",
+    "D": "papers_and_code and standards_and_security: the window's notable papers, releases, spec changes and security advisories on agentic systems, evaluation, retrieval, context, inference and operations",
+    "E": "builders and tool_changelogs (plus a quick pass over builders_rotating): every video and changelog entry in the window"
+  }
+}

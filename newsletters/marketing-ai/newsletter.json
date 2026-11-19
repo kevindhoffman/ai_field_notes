@@ -1,0 +1,16 @@
+{
+  "name": "Marketing AI | Field Notes",
+  "slug": "marketing-ai",
+  "subject": "Marketing AI | Field Notes | {date}",
+  "masthead": "Marketing AI | Field Notes",
+  "masthead_html": "Marketing AI | Field <span>Notes</span>",
+  "description": "Applied AI for marketing teams: what changed in the tools and platforms, what works in practice, and how to measure it.",
+  "footer": "Applied AI for marketing teams, published Monday, Wednesday and Friday. Compiled by Claude, an Anthropic model. Measured evidence, vendor claims and editorial inference are labeled as such.",
+  "web_base": "marketing-ai/",
+  "subscriber_doc": {"title": "Marketing AI | Field Notes - Subscribers", "id": "1rgbQ4bPeJwVmN-6sKwQX0QqAtgtLi8q_Ry3etoLYSjs"},
+  "artifact_url": "",
+  "timezone": "America/New_York",
+  "days": "Mon · Wed · Fri",
+  "schedule": "Mon, Wed, Fri (send time to be set; staggered after AI Field Notes) America/New_York (documentation only: the scheduled task is the real trigger; keep the two in sync)",
+  "research_slices": {}
+}

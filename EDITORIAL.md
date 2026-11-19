@@ -1,22 +1,16 @@
-# AI Field Notes: editorial method
+# Field Notes: shared editorial method
 
-This is the standing editorial guide. The scheduled run follows `RUNBOOK.md` for *process* and this file for *judgment*. It merges two predecessors: the OpenAI-era "AI Systems | Field Notes" handoff (research method, evidence discipline, delivery verification) and the Claude-era "AI Systems Brief" (writing style, diagrams, design system). Edit this file to change how the magazine thinks; edit `config/sources.yaml` to change where it looks.
+This is the standing editorial guide for every newsletter that runs on this engine. The run follows `RUNBOOK.md` for *process*, this file for *method*, and the newsletter's own brief, `newsletters/<slug>/EDITORIAL.md`, for *identity*: its mission and reader, tone, cadence, lenses and continuity notes. Where the two disagree, the newsletter's brief wins on identity and this file wins on evidence. Sources live in `newsletters/<slug>/sources.yaml`.
 
-## 1. Mission and reader
+It began as the AI Field Notes guide, which merged two predecessors: the OpenAI-era "AI Systems | Field Notes" handoff (research method, evidence discipline, delivery verification) and the Claude-era "AI Systems Brief" (writing style, diagrams, design system).
 
-**Applied first.** AI Field Notes is for practitioners who use AI in their daily work: engineers, technical leads, architects and the people who run AI-heavy teams. They like knowing the science, but they read this to change what they do this week. Every issue should leave a reader with something to try, build, configure, measure or stop doing.
+## 1. Mission, reader and tone
 
-The lens is systems engineering: reliable agentic systems, architectures, context engineering, memory and retrieval, evaluation, observability, security and governance, orchestration, tool use, AI-assisted development, operations, and the economic and organizational tradeoffs. Cutting-edge developments are welcome, but always paired with **how to apply them**.
-
-It is not a generic AI news digest, a product-launch roundup, an academic paper review, or a briefing tailored to one employer. Enterprise and federal-contractor examples may illustrate a point but must not dominate. The reader prefers dense, well-argued essays over bullet summaries.
-
-Published **Monday, Wednesday and Friday**. Each issue covers what appeared since the previous issue (Monday covers Friday through Sunday), but an essay may draw on older foundational sources when they explain the new development.
-
-Every story should answer: **What changed? How does it work? What evidence supports it? What can fail? And what should I do differently on Monday?**
-
-**Tone model.** The target is the predecessor "AI Systems | Field Notes" engineering edition (Nov 11, 2026, "The proof and the permission"): essays that turn a development into an engineering principle, then into a concrete practice: a pilot design, an architecture test ("disable the model and ask what the rest of the system knows"), a scorecard, a test suite to write. Keep statistics to the few that carry the argument; the reader wants the mechanism and the move, not every p-value. Put paper detail (sample sizes, significance) in a clause or the source note, not a paragraph.
+Each newsletter defines these in its brief (`newsletters/<slug>/EDITORIAL.md`): who it is for, what it is not, the questions every story must answer, the tone model and the cadence. Read the brief before choosing stories. Across all of them: **applied first**. Every issue should leave a reader with something to try, build, configure, measure or stop doing, and every story should answer: **What changed? How does it work? What evidence supports it? What can fail? And what should I do differently on Monday?**
 
 ## 2. Shape of an issue
+
+The shared shape. A newsletter's brief may say what its "Try it this week" steps and builders look like, or drop the optional Research corner.
 
 - **An issue title and a theme.** Give each issue a short title (e.g. "The proof and the permission") and an "In this issue" paragraph that names the thread connecting the essays and which development is the fresh lead.
 - **4–6 essays** of roughly 400–650 words, numbered "01 / Kicker". Fewer when the news is thin; never pad. Aim for **at least two-thirds applied** stories (tools, workflows, practices, platform changes, practitioner experiments) and at most one-third frontier/research stories, and even those must end with an application.
@@ -29,8 +23,8 @@ Every story should answer: **What changed? How does it work? What evidence suppo
 
 ## 3. Research workflow
 
-1. **Establish the date and window.** Run `python3 scripts/fieldnotes.py last` to see the previous issues' topics and sources. Search developments since the previous issue; older foundational evidence may support genuinely new analysis.
-2. **Scan primary sources and builders.** Lab engineering posts, tool changelogs (Claude Code, Cursor, GitHub Copilot, model APIs), incident write-ups, papers and specifications; and the builders: practitioner YouTube channels, podcasts and newsletters, for experiments, workflows, criticism and overlooked implications. Use `python3 scripts/fieldnotes.py youtube @handle --since <window start>` for channels. A video's description, chapters and linked repo or transcript are the evidence; say so ("in the video, X walks through…") and don't claim details you could not read. The roster is in `config/sources.yaml`; it is a starting point, not a quota or an endorsement.
+1. **Establish the date and window.** Run `python3 scripts/fieldnotes.py last --newsletter <slug>` to see the previous issues' topics and sources. Search developments since the previous issue; older foundational evidence may support genuinely new analysis.
+2. **Scan primary sources and builders.** Primary sources (lab and vendor posts, tool and platform changelogs, incident write-ups, papers, specifications, data) and the builders (practitioner YouTube channels, podcasts and newsletters), for experiments, workflows, criticism and overlooked implications. Use `python3 scripts/fieldnotes.py youtube @handle --since <window start>` for channels. A video's description, chapters and linked repo or transcript are the evidence; say so ("in the video, X walks through…") and don't claim details you could not read. The roster is in `newsletters/<slug>/sources.yaml`; it is a starting point, not a quota or an endorsement.
 3. **Build a candidate ledger** (`candidates.json`, kept with the issue). For each candidate: title, author, organization, URL, publication date, event date, what changed, mechanism, evidence quality, independent confirmation, relevance, overlap with prior issues, and the decision (used / brief / rejected, with a reason).
 4. **Score usefulness first, then significance.** Favor things a reader can act on: new tools and features worth adopting, workflows shown working, credible failures with lessons, meaningful API or permission changes, evaluation practices, deployment economics. Then new architectural patterns and empirical results. Penalize duplicated press releases, vague product claims, recycled themes, and research with no path to practice (that goes to the Research corner).
 5. **Cluster related developments.** A story can unite a paper, a practitioner experiment and a platform change around one engineering question, and must then explain how the pieces relate as parts of one system (shared mechanism, layers of one stack, cause and effect, the same loop in different domains). A strong single-author piece can stand alone with a "Single source" badge. Don't force citations to simulate consensus.
@@ -82,40 +76,17 @@ Add an inline SVG only where it shows a relationship that prose struggles with: 
 - Color meaning: blue for structure, red only for risk, teal only for open questions or uncertainty, amber for watch items, green for resolved or passing. No literal colors, no `<style>` or `<script>` in SVGs.
 - Each figure needs `aria_label` (states the claim), `claim` (bold caption lead), `caption`, and `email_description`: a complete prose description, because email clients strip SVG. The email reader must lose no meaning.
 
-## 7. Systems-engineering lenses
+## 7. Lenses
 
-Reach for whichever apply:
-
-- **Boundaries**: who can read, propose, approve, write, execute or transmit?
-- **Control plane vs. data plane**: who decides policy, who performs side effects?
-- **Failure containment**: blast radius, least privilege, isolation, rollback, idempotency, rate limits, kill switches.
-- **State and memory**: persistence, provenance, freshness, conflict resolution, deletion, reproducibility.
-- **Context and retrieval**: selection, ranking, citation fidelity, source authority, injection exposure, stale context.
-- **Evaluation**: component, scenario, adversarial, end-to-end and production-outcome tests.
-- **Observability**: trace IDs, tool inputs/outputs, model and prompt versions, approvals, costs, redaction, retention.
-- **Human factors**: verification effort, cognitive load, reviewer queues, operator trust, handoff quality.
-- **Economics**: latency, tokens, total task cost, error cost, model routing, maintenance.
-- **Portability**: stable contracts, replaceable models and vendors, independent test fixtures, exportable state.
-
-**Productivity and value** (a recurring lens, not a recurring feature): separate efficiency, quality, human experience and expanded capability; measure at individual, team and system levels; count verification and downstream queue costs; compare the plausible future with AI against the plausible future without it, not AI tomorrow against a frozen present.
+Each newsletter's brief lists the lenses it reaches for (AI Field Notes: systems engineering; Marketing AI: measurement, brand, data and the stack). Pick the ones that apply to the story; don't march through all of them.
 
 ## 8. Continuity
 
-Before choosing stories, run `python3 scripts/fieldnotes.py last`. Seek a different angle from the last few issues unless a new development materially advances a story; then say explicitly what is new.
-
-Historical one-day specials are not standing assignments: AI productivity measurement (Oct 30, 2026), Parmenides' Fallacy applied to AI futures (Oct 31), Apple's FY2026 10-K agent-risk language (Nov 4).
-
-Legacy topics from the predecessor publications, for the first issues before the archive has history:
-
-- OpenAI edition, Nov 12: agent-built cloud emulator validation; memory architecture and provenance; vulnerability verification at scale; versioned model routing and pricing.
-- OpenAI edition, Nov 13: unauthorized airline-booking agents and delegation; agent observability and LangSmith; code generation vs. review bottlenecks; multi-agent permission boundaries.
-- OpenAI edition, Nov 14: durable agent operating environments; product deprecation and workflow portability; reusable skills vs. authority; independent evaluation.
-- Claude Brief Edition 19, Nov 14: Anthropic's "Building strong safety evaluations"; Thinking Machines' Inkling 2 Small; Latent Space's No AI Slop Manifesto; Jensen Huang's resignation as supplier risk.
-- Claude Brief Edition 20, Nov 15: Lambert, "Open-source AI without Jensen"; datasette-llm on local OpenAI-compatible servers.
+Before choosing stories, run `python3 scripts/fieldnotes.py last --newsletter <slug>`. Seek a different angle from the last few issues unless a new development materially advances a story; then say explicitly what is new. The newsletter's brief has its continuity notes: specials that are not standing assignments, and where its edition numbering and first window start when the archive is empty.
 
 ## 9. Pre-send checklist
 
-- [ ] Window and previous-issue comparison checked (`fieldnotes.py last`).
+- [ ] Window and previous-issue comparison checked (`fieldnotes.py last --newsletter <slug>`).
 - [ ] Fresh primary sources actually read; publication dates and claims verified.
 - [ ] No recycled specials, no padding.
 - [ ] Articles are explanatory, technically grounded and appropriately skeptical.
@@ -126,14 +97,16 @@ Legacy topics from the predecessor publications, for the first issues before the
 - [ ] Every figure has an aria label and a complete email description.
 - [ ] `fieldnotes.py render` reports 0 errors and `parity OK`.
 - [ ] `fieldnotes.py links` shows no BROKEN links; UNVERIFIED ones confirmed by reading them (`fieldnotes.py fetch` or WebFetch).
-- [ ] Email sent with a returned message ID, and the Sent copy checked.
+- [ ] No email address anywhere in the issue or its research files (`fieldnotes.py privacy-check`).
+- [ ] Email sent To the owner with every subscriber in Bcc, with a returned message ID, and the Sent copy checked.
 
 ## 10. issue.json schema
 
-`issues/YYYY-MM-DD/issue.json` is the single editorial source. Both HTML editions and the archive are generated from it. See `examples/sample-issue.json` for a complete example.
+`newsletters/<slug>/issues/YYYY-MM-DD/issue.json` is the single editorial source. Both HTML editions and the archive are generated from it. See `examples/sample-issue.json` for a complete example.
 
 ```jsonc
 {
+  "newsletter": "ai-field-notes",       // the newsletter's slug (folder name under newsletters/)
   "date": "2026-11-16",                 // issue date, YYYY-MM-DD
   "edition": 1,                         // previous + 1
   "window": {"start": "2026-11-13", "end": "2026-11-16"},
@@ -164,6 +137,6 @@ Legacy topics from the predecessor publications, for the first issues before the
   "briefs":   [{"title": "…", "html": "inline HTML", "who": "…", "date": "…", "flags": "free", "url": "https://…"}],
   "research": [{"title": "…", "html": "2-3 sentences", "who": "…", "date": "…", "flags": "free", "url": "https://…"}],
   "roster": [{"source": "Interconnects", "posts": 1, "notes": "…"}],
-  "footer": "optional override"
+  "footer": "optional override (default: newsletter.json footer)"
 }
 ```

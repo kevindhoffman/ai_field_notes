@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
-"""AI Field Notes production tool. Standard library only.
+"""Field Notes engine: one production tool for several newsletters. Standard library only.
 
-    python3 scripts/fieldnotes.py last                      continuity: the previous issue's topics and sources
-    python3 scripts/fieldnotes.py validate issues/D/issue.json
-    python3 scripts/fieldnotes.py render   issues/D/issue.json   writes web.html + email.html, checks parity
-    python3 scripts/fieldnotes.py links    issues/D/issue.json   checks every cited URL responds
-    python3 scripts/fieldnotes.py site                      rebuilds the docs/ archive (GitHub Pages)
-    python3 scripts/fieldnotes.py publish  issues/D/issue.json   copies one web edition + diagram PNGs into docs/ (before sending)
-    python3 scripts/fieldnotes.py wait-live URL               waits until a GitHub Pages URL is live
-    python3 scripts/fieldnotes.py fetch URL [--links] [--max N]   reads a page as plain text (research; see RUNBOOK)
+Each newsletter lives in newsletters/<slug>/ (newsletter.json, EDITORIAL.md, sources.yaml, issues/).
+Commands that belong to one newsletter take --newsletter <slug>. For commands given an issue path,
+the newsletter is also read from the path (newsletters/<slug>/issues/D) or from issue.json's
+"newsletter" field.
+
+    python3 scripts/fieldnotes.py newsletters                         lists the newsletters and their settings
+    python3 scripts/fieldnotes.py setup    --newsletter S [--test] [--date D]   today's date, subject, paths, URLs, duplicate guard
+    python3 scripts/fieldnotes.py last     --newsletter S             continuity: the previous issues' topics and sources
+    python3 scripts/fieldnotes.py validate ISSUE.json [--newsletter S]
+    python3 scripts/fieldnotes.py render   ISSUE.json [--newsletter S]   writes web.html + email.html, checks parity
+    python3 scripts/fieldnotes.py links    ISSUE.json                 checks every cited URL responds
+    python3 scripts/fieldnotes.py publish  ISSUE.json [--newsletter S]   copies one web edition + diagram PNGs into docs/ (before sending)
+    python3 scripts/fieldnotes.py site     --newsletter S | --all     rebuilds that newsletter's part of the docs/ archive (GitHub Pages)
+    python3 scripts/fieldnotes.py wait-live URL                       waits until a GitHub Pages URL is live
+    python3 scripts/fieldnotes.py privacy-check [--staged] [PATH...]  fails if any email address is in files about to be committed
+    python3 scripts/fieldnotes.py fetch URL [--links] [--max N]       reads a page as plain text (research; see RUNBOOK)
     python3 scripts/fieldnotes.py youtube @handle [--since YYYY-MM-DD]  lists a channel's recent videos from its RSS feed
 
 issue.json is the single editorial source. Both HTML outputs are generated from it,
@@ -29,12 +37,14 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-ISSUES = Path(os.environ.get("FIELDNOTES_ISSUES", ROOT / "issues"))  # overrides are for testing
-DOCS = Path(os.environ.get("FIELDNOTES_DOCS", ROOT / "docs"))
+NEWSLETTERS = ROOT / "newsletters"
+DOCS_ROOT = Path(os.environ.get("FIELDNOTES_DOCS", ROOT / "docs"))  # overrides are for testing
 CSS = (ROOT / "templates" / "web.css").read_text()
+SITE_ROOT = "https://kevindhoffman.github.io/ai_field_notes/"  # the one GitHub Pages site; each newsletter has a web_base under it
 
-TITLE = "AI Field Notes"
-SITE_URL = "https://kevindhoffman.github.io/ai_field_notes/"
+# Set by use_newsletter() before any per-newsletter command runs.
+NL = {}
+TITLE = SITE_URL = ISSUES = DOCS = None
 INLINE_TAGS = {"a", "em", "strong", "b", "i", "code", "br"}
 AMBER_BADGES = {"single source", "vendor claim", "opinion", "analysis and opinion",
                 "reported", "unaudited", "forecast", "paywalled"}
@@ -45,6 +55,46 @@ LIST_SECTIONS = [
     ("briefs", "Briefs", "Shorter single-source items from the same window."),
     ("research", "Research corner", "Interesting science with no immediate application yet. Good to know, not urgent."),
 ]
+
+
+def newsletter_slugs():
+    return sorted(p.parent.name for p in NEWSLETTERS.glob("*/newsletter.json"))
+
+
+def read_newsletter(slug):
+    p = NEWSLETTERS / slug / "newsletter.json"
+    if not p.exists():
+        raise SystemExit(f"unknown newsletter '{slug}'. Known: {', '.join(newsletter_slugs()) or 'none'}")
+    nl = json.loads(p.read_text())
+    nl.setdefault("slug", slug)
+    nl.setdefault("web_base", f"{slug}/")
+    return nl
+
+
+def use_newsletter(slug):
+    """Point the engine at one newsletter: its name, site URL, issue archive and docs folder."""
+    global NL, TITLE, SITE_URL, ISSUES, DOCS
+    NL = read_newsletter(slug)
+    TITLE = NL["name"]
+    SITE_URL = SITE_ROOT + NL["web_base"]
+    ISSUES = Path(os.environ.get("FIELDNOTES_ISSUES", NEWSLETTERS / slug / "issues"))
+    DOCS = DOCS_ROOT / NL["web_base"] if NL["web_base"] else DOCS_ROOT
+    return NL
+
+
+def slug_for(path=None, issue=None, flag=None):
+    """Which newsletter: the --newsletter flag, then issue.json's "newsletter", then newsletters/<slug>/ in the path."""
+    if flag:
+        return flag
+    if issue and issue.get("newsletter"):
+        return issue["newsletter"]
+    if path:
+        parts = Path(path).resolve().parts
+        for i, x in enumerate(parts[:-1]):
+            if x == "newsletters" and (NEWSLETTERS / parts[i + 1] / "newsletter.json").exists():
+                return parts[i + 1]
+    raise SystemExit("which newsletter? pass --newsletter <slug> or add \"newsletter\": \"<slug>\" to issue.json. "
+                     f"Known: {', '.join(newsletter_slugs())}")
 
 
 def list_items(issue):
@@ -192,7 +242,57 @@ def validate(issue):
             err.append(f"{key} item '{b.get('title')}': disallowed tags {sorted(bad)}")
     if not any(a.get("try_it") for a in arts):
         warn.append("no story has try_it steps; the newsletter is meant to be applied")
+    for addr in find_addresses(json.dumps(issue, ensure_ascii=False)):
+        err.append(f"email address in issue.json ({addr}): the archive is public; remove it")
     return err, warn
+
+
+# ---------------------------------------------------------------- privacy
+
+EMAIL_RE = re.compile(r"(?<![\w.+-])[A-Za-z0-9][A-Za-z0-9._%+-]*@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}(?![\w-])")
+# Addresses that are safe to appear in public files. Never add a subscriber's or the owner's address.
+EMAIL_ALLOW = {"noreply@anthropic.com", "git@github.com"}
+IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".css")
+
+
+def find_addresses(text):
+    return sorted({m.group(0) for m in EMAIL_RE.finditer(text)
+                   if m.group(0).lower() not in EMAIL_ALLOW and not m.group(0).lower().endswith(IMAGE_SUFFIXES)})
+
+
+def cmd_privacy_check(paths, staged=False):
+    """Fail if any email address appears in the files about to be committed (the repo is public).
+
+    --staged checks what `git add` has staged; PATHs check those files or folders; neither checks every
+    tracked and untracked (not ignored) file in the repo."""
+    import subprocess
+    if staged:
+        out = subprocess.run(["git", "diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z"],
+                             cwd=ROOT, capture_output=True, text=True, check=True).stdout
+        files = [ROOT / f for f in out.split("\0") if f]
+    elif paths:
+        files = []
+        for x in paths:
+            x = Path(x)
+            files += [f for f in x.rglob("*") if f.is_file()] if x.is_dir() else [x]
+    else:
+        out = subprocess.run(["git", "ls-files", "-co", "--exclude-standard", "-z"],
+                             cwd=ROOT, capture_output=True, text=True, check=True).stdout
+        files = [ROOT / f for f in out.split("\0") if f]
+    hits = 0
+    for f in files:
+        try:
+            data = f.read_bytes()
+        except OSError:
+            continue
+        if b"\0" in data[:8192]:
+            continue  # binary
+        for addr in find_addresses(data.decode("utf-8", errors="replace")):
+            hits += 1
+            print(f"ADDRESS {f}: {addr}")
+    print(f"privacy-check: {len(files)} files, {hits} email address(es) found"
+          + ("" if not hits else ". Remove them before committing: the repository is public."))
+    return 1 if hits else 0
 
 
 # ---------------------------------------------------------------- web rendering
@@ -273,14 +373,14 @@ def render_web(issue, archive_link=False):
             f'Window {w["start"]} → {w["end"]}', f'{len(arts)} {"story" if len(arts) == 1 else "stories"} · {n_src} sources']
     back = f'<a class="backlink" href="../index.html">← All issues</a>' if archive_link else ""
     title = issue.get("title")
-    h1 = (f'<p class="masthead mono">AI Field Notes</p><h1>{esc(title)}</h1>' if title
-          else '<h1>AI Field <span>Notes</span></h1>')
+    h1 = (f'<p class="masthead mono">{esc(NL["masthead"])}</p><h1>{esc(title)}</h1>' if title
+          else f'<h1>{NL["masthead_html"]}</h1>')
     parts = [f'<header>{back}<div class="edition mono">{"".join(f"<span>{esc(t)}</span>" for t in tags)}</div>'
              f'{h1}<p class="lede">{issue["lede"]}</p></header>']
     if issue.get("theme"):
         th = issue["theme"]
         parts.append(f'<section class="theme"><p class="label mono">In this issue</p><p class="theme-h">{esc(th["heading"])}</p>'
-                     f'<p>{th["html"]}</p><p class="evidence"><b>Evidence standard.</b> {issue.get("evidence_standard", EVIDENCE_STANDARD)}</p></section>')
+                     f'<p>{th["html"]}</p><p class="evidence"><b>Evidence standard.</b> {issue.get("evidence_standard", NL.get("evidence_standard", EVIDENCE_STANDARD))}</p></section>')
     if issue.get("top"):
         items = "".join(f'<li>{t["html"]}</li>' for t in issue["top"])
         parts.append(f'<section class="top" aria-labelledby="top-h"><h2 id="top-h">If you read nothing else</h2><ol>{items}</ol></section>')
@@ -308,8 +408,7 @@ def render_web(issue, archive_link=False):
         parts.append('<section class="roster" id="roster" aria-labelledby="roster-h"><h2 id="roster-h">Source roster this edition</h2>'
                      '<div class="tbl"><table><thead><tr><th>Source</th><th style="text-align:right;padding-right:16px">Posts</th><th>Notes</th></tr></thead>'
                      f"<tbody>{rows}</tbody></table></div></section>")
-    footer = issue.get("footer") or ("A technical magazine on engineering AI systems, published Monday, Wednesday and Friday. "
-                                     "Compiled by Claude, an Anthropic model. Measured evidence, vendor claims and editorial inference are labeled as such.")
+    footer = issue.get("footer") or NL["footer"]
     parts.append(f'<footer><p>{footer}</p><p>Past issues and a searchable source index: <a href="{SITE_URL}">{SITE_URL}</a></p>'
                  f'<p class="mono">Compiled {esc(long_date(issue["date"]))}</p></footer>')
     return page(f'{TITLE} · {issue["date"]}', "\n".join(parts), strip_tags(issue["lede"]))
@@ -415,9 +514,9 @@ def render_email(issue, images=None):
     rows.append(f'<tr><td style="padding:8px 0 18px;">'
                 f'<p style="margin:0 0 6px;color:{E["muted"]};font-family:{E["mono"]};font-size:12px;">Edition {issue["edition"]} · {esc(long_date(issue["date"]))} · '
                 f'<a style="color:{E["accent"]};" href="{web_url(issue)}">Read on the web</a></p>'
-                + (f'<p style="margin:0 0 4px;color:{E["deep"]};font-family:{E["mono"]};font-size:12px;text-transform:uppercase;letter-spacing:.08em;">AI Field Notes</p>'
+                + (f'<p style="margin:0 0 4px;color:{E["deep"]};font-family:{E["mono"]};font-size:12px;text-transform:uppercase;letter-spacing:.08em;">{esc(NL["masthead"])}</p>'
                    f'<h1 style="margin:0 0 10px;font-size:32px;line-height:1.1;color:{E["ink"]};">{esc(issue["title"])}</h1>' if issue.get("title")
-                   else f'<h1 style="margin:0 0 10px;font-size:34px;line-height:1.05;color:{E["ink"]};">AI Field Notes</h1>')
+                   else f'<h1 style="margin:0 0 10px;font-size:34px;line-height:1.05;color:{E["ink"]};">{esc(NL["masthead"])}</h1>')
                 + f'<p style="margin:0;font-family:{E["serif"]};font-size:18px;line-height:1.45;color:{E["soft"]};">{email_links(issue["lede"])}</p></td></tr>')
     if issue.get("theme"):
         th = issue["theme"]
@@ -425,7 +524,7 @@ def render_email(issue, images=None):
                     f'<p style="margin:0 0 4px;color:{E["deep"]};font-family:{E["mono"]};font-size:11px;text-transform:uppercase;">In this issue</p>'
                     f'<p style="margin:0 0 8px;font-weight:bold;font-size:18px;color:{E["ink"]};">{esc(th["heading"])}</p>'
                     f'<p style="margin:0 0 10px;color:{E["soft"]};">{email_links(th["html"])}</p>'
-                    f'<p style="margin:0;color:{E["muted"]};font-size:13px;"><b>Evidence standard.</b> {issue.get("evidence_standard", EVIDENCE_STANDARD)}</p></div></td></tr>')
+                    f'<p style="margin:0;color:{E["muted"]};font-size:13px;"><b>Evidence standard.</b> {issue.get("evidence_standard", NL.get("evidence_standard", EVIDENCE_STANDARD))}</p></div></td></tr>')
     if issue.get("top"):
         items = "".join(f'<li style="margin:0 0 8px;">{email_links(t["html"])}</li>' for t in issue["top"])
         rows.append(f'<tr><td style="padding:0 0 18px;"><div style="padding:14px 16px;background:{E["surface"]};border:1px solid {E["border"]};border-top:3px solid {E["accent"]};border-radius:12px;">'
@@ -453,8 +552,7 @@ def render_email(issue, images=None):
         rows.append(f'<tr><td style="padding:28px 0 8px;border-top:1px solid {E["border"]};">'
                     f'<h2 style="margin:0 0 10px;font-size:18px;color:{E["ink"]};">Source roster this edition</h2>'
                     f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:13px;color:{E["soft"]};">{rr}</table></td></tr>')
-    footer = issue.get("footer") or ("A technical magazine on engineering AI systems, published Monday, Wednesday and Friday. "
-                                     "Compiled by Claude, an Anthropic model. Measured evidence, vendor claims and editorial inference are labeled as such.")
+    footer = issue.get("footer") or NL["footer"]
     rows.append(f'<tr><td style="padding:24px 0 0;border-top:1px solid {E["border"]};color:{E["muted"]};font-size:13px;">'
                 f'<p style="margin:0 0 6px;">{footer}</p>'
                 f'<p style="margin:0;">Past issues and a searchable source index: <a style="color:{E["accent"]};" href="{SITE_URL}">{SITE_URL}</a>. '
@@ -486,7 +584,7 @@ class _Collect(HTMLParser):
         if tag in ("svg", "style", "nav"):
             self._skip += 1
         href = dict(attrs).get("href", "")
-        if tag == "a" and href.startswith("http") and not href.startswith(SITE_URL):
+        if tag == "a" and href.startswith("http") and not href.startswith(SITE_ROOT):
             self.hrefs.add(href)
 
     def handle_endtag(self, tag):
@@ -611,7 +709,8 @@ def cmd_links(path):
 def cmd_last():
     issues = all_issues()
     if not issues:
-        print("No previous issues in the archive. Check the legacy topic list in EDITORIAL.md section 8.")
+        print(f"No previous issues of {TITLE} in the archive. This is its first edition here: see the Continuity "
+              f"section of newsletters/{NL['slug']}/EDITORIAL.md for the starting edition number and window.")
         return 0
     for p, i in issues[-3:]:
         print(f"== Edition {i['edition']} · {i['date']} · window {i['window']['start']} → {i['window']['end']}")
@@ -622,7 +721,7 @@ def cmd_last():
         for key, heading, b in list_items(i):
             print(f"  [{heading}] {b['title']}  {b['url']}")
     last = issues[-1][1]
-    print(f"\nNext edition number: {last['edition'] + 1}. Window starts after {last['window']['end']}.")
+    print(f"\n{TITLE}: next edition number {last['edition'] + 1}. Window starts after {last['window']['end']}.")
     return 0
 
 
@@ -676,7 +775,7 @@ def cmd_wait_live(url, timeout=420):
     import time
     start = time.time()
     while True:
-        req = urllib.request.Request(url, method="GET", headers={"User-Agent": "Mozilla/5.0 (AI Field Notes)", "Cache-Control": "no-cache"})
+        req = urllib.request.Request(url, method="GET", headers={"User-Agent": "Mozilla/5.0 (Field Notes)", "Cache-Control": "no-cache"})
         try:
             with urllib.request.urlopen(req, timeout=20) as r:
                 if r.status == 200:
@@ -690,10 +789,20 @@ def cmd_wait_live(url, timeout=420):
         time.sleep(15)
 
 
+def siblings_note():
+    """A line linking the other newsletters on the site that have published at least one issue."""
+    if os.environ.get("FIELDNOTES_ISSUES"):  # runs against an overridden archive don't link siblings
+        return ""
+    links = [f'<a href="{SITE_ROOT}{nl["web_base"]}">{esc(nl["name"])}</a>'
+             for nl in map(read_newsletter, newsletter_slugs())
+             if nl["slug"] != NL["slug"] and any((NEWSLETTERS / nl["slug"] / "issues").glob("*/issue.json"))]
+    return f'<p class="note">Also on this site: {" · ".join(links)}</p>' if links else ""
+
+
 def cmd_site():
-    DOCS.mkdir(exist_ok=True)
-    (DOCS / "issues").mkdir(exist_ok=True)
-    (DOCS / ".nojekyll").write_text("")
+    DOCS_ROOT.mkdir(parents=True, exist_ok=True)
+    (DOCS_ROOT / ".nojekyll").write_text("")
+    (DOCS / "issues").mkdir(parents=True, exist_ok=True)
     issues = all_issues()
     for p, i in issues:
         publish_issue(i, p.parent, archive_link=True)
@@ -702,12 +811,11 @@ def cmd_site():
         heads = "".join(f'<li><a href="issues/{i["date"]}.html#{a["id"]}">{esc(a["headline"])}</a></li>' for a in i["articles"])
         lis.append(f'<li><a href="issues/{i["date"]}.html"><strong>{esc(long_date(i["date"]))}</strong></a>'
                    f'<span class="d">Edition {i["edition"]} · {len(i["articles"])} stories</span><ul>{heads}</ul></li>')
-    body = ('<header><div class="edition mono"><span>Archive</span><span>Mon · Wed · Fri</span></div>'
-            '<h1>AI Field <span>Notes</span></h1><p class="lede">A technical magazine on engineering AI systems: agents, evaluation, retrieval, '
-            'context, security, operations and their tradeoffs. Every issue, newest first.</p>'
-            '<p><a href="sources.html">Search every source we have cited →</a></p></header>'
+    body = (f'<header><div class="edition mono"><span>Archive</span><span>{esc(NL["days"])}</span></div>'
+            f'<h1>{NL["masthead_html"]}</h1><p class="lede">{esc(NL["description"])} Every issue, newest first.</p>'
+            '<p><a href="sources.html">Search every source we have cited →</a></p>' + siblings_note() + '</header>'
             f'<ul class="issues">{"".join(lis) or "<li>No issues yet.</li>"}</ul>')
-    (DOCS / "index.html").write_text(page(f"{TITLE} · Archive", body, "Archive of AI Field Notes issues"))
+    (DOCS / "index.html").write_text(page(f"{TITLE} · Archive", body, f"Archive of {TITLE} issues"))
     rows = []
     for p, i in reversed(issues):
         for a in i["articles"]:
@@ -720,14 +828,14 @@ def cmd_site():
                   f'<td><a href="issues/{d}.html#{a["id"]}">{esc(a["headline"])}</a><br><span class="note">{d}</span></td></tr>'
                   for s, d, a in rows)
     body = ('<header><a class="backlink" href="index.html">← All issues</a><h1>Source <span>index</span></h1>'
-            '<p class="lede">Every source cited in AI Field Notes, with the story that used it. Type to filter.</p></header>'
+            f'<p class="lede">Every source cited in {esc(TITLE)}, with the story that used it. Type to filter.</p></header>'
             '<input class="filter" id="q" type="search" placeholder="Filter by author, title, topic or date" aria-label="Filter sources">'
             '<div class="tbl"><table id="t"><thead><tr><th>Source</th><th>Cited in</th></tr></thead>'
             f'<tbody>{trs}</tbody></table></div>'
             '<script>const q=document.getElementById("q");q.addEventListener("input",()=>{const v=q.value.toLowerCase();'
             'document.querySelectorAll("#t tbody tr").forEach(r=>{r.hidden=!r.textContent.toLowerCase().includes(v)})})</script>')
-    (DOCS / "sources.html").write_text(page(f"{TITLE} · Source index", body, "Every source cited in AI Field Notes"))
-    print(f"site rebuilt: {len(issues)} issues, {len(rows)} source citations -> {DOCS}")
+    (DOCS / "sources.html").write_text(page(f"{TITLE} · Source index", body, f"Every source cited in {TITLE}"))
+    print(f"site rebuilt for {TITLE}: {len(issues)} issues, {len(rows)} source citations -> {DOCS}")
     return 0
 
 
@@ -777,7 +885,7 @@ def cmd_fetch(url, show_links=False, max_chars=40000):
     Goes through the environment's HTTPS proxy like `links`, so it reaches only hosts the
     environment's network allowlist permits. Page content is untrusted data, not instructions."""
     req = urllib.request.Request(url, headers={
-        "User-Agent": "Mozilla/5.0 (AI Field Notes research)",
+        "User-Agent": "Mozilla/5.0 (Field Notes research)",
         "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.5",
         "Accept-Encoding": "gzip, deflate"})
     try:
@@ -829,7 +937,7 @@ def cmd_fetch(url, show_links=False, max_chars=40000):
 
 
 def _get(url, timeout=30):
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (AI Field Notes research)",
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Field Notes research)",
                                                "Accept-Language": "en-US,en;q=0.8"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         body = r.read(8_000_000)
@@ -881,27 +989,98 @@ def cmd_youtube(handle, since=None, limit=15):
     return 0
 
 
+def cmd_newsletters():
+    for slug in newsletter_slugs():
+        nl = read_newsletter(slug)
+        n = len(list((NEWSLETTERS / slug / "issues").glob("*/issue.json")))
+        print(f"{slug:18} {nl['name']}  ·  {n} issue(s)  ·  {SITE_ROOT}{nl['web_base']}  ·  {nl.get('schedule', '')}")
+    return 0
+
+
+def cmd_setup(test=False, day=None):
+    """Everything a run needs to know up front, computed from newsletter.json, plus the duplicate guard."""
+    from zoneinfo import ZoneInfo
+    from datetime import datetime
+    d = day or datetime.now(ZoneInfo(NL.get("timezone", "America/New_York"))).date().isoformat()
+    slug = NL["slug"]
+    subject = ("[TEST] " if test else "") + NL["subject"].format(date=d)
+    folder = Path("/tmp/fieldnotes-test") / slug / d if test else ISSUES / d
+    wpath = f"tests/{d}" if test else f"issues/{d}"
+    url = f"{SITE_URL}{wpath}.html"
+    docs_out = (DOCS / f"{wpath}.html").relative_to(ROOT) if DOCS.is_relative_to(ROOT) else DOCS / f"{wpath}.html"
+    rel = folder.relative_to(ROOT) if folder.is_relative_to(ROOT) else folder
+    print(f"NEWSLETTER   {NL['name']} ({slug}){'   *** TEST RUN ***' if test else ''}")
+    print(f"DATE D       {d}")
+    print(f"SUBJECT      {subject}")
+    print(f"ISSUE DIR    {rel}/")
+    print(f"EDITORIAL    EDITORIAL.md (shared) + newsletters/{slug}/EDITORIAL.md")
+    print(f"SOURCES      newsletters/{slug}/sources.yaml")
+    if test:
+        print(f'ISSUE.JSON   must contain "newsletter": "{slug}" and "web_path": "{wpath}"')
+    else:
+        print(f'ISSUE.JSON   must contain "newsletter": "{slug}"')
+    print(f"WEB EDITION  {docs_out}  ->  {url}")
+    print(f"GMAIL DUP    in:sent subject:\"{subject}\"")
+    print(f"PLAIN BODY   {NL['name']}, Edition N. This issue is best read as HTML. Web edition: {url}")
+    if test:
+        print("RECIPIENTS   the owner address from the request only (To); no subscriber doc, no Bcc")
+    else:
+        sd = NL["subscriber_doc"]
+        print(f"RECIPIENTS   Google Doc \"{sd['title']}\" (Drive id {sd['id']}); To = owner address, every subscriber Bcc")
+        print(f"READING PAGE {NL.get('artifact_url') or '(none yet: create one on the first real run, then record it in newsletter.json)'}")
+    for k, v in NL.get("research_slices", {}).items():
+        print(f"SLICE {k}      {v}")
+    if (folder / "sent.json").exists():
+        print(f"\nALREADY SENT: {rel}/sent.json exists. Stop; don't send again.")
+        return 3
+    print("\nNot sent yet (no sent.json). Also run the Gmail duplicate search before sending.")
+    return 0
+
+
 def main(argv):
     if len(argv) < 2:
         print(__doc__)
         return 2
-    cmd, rest = argv[1], argv[2:]
+    cmd, rest = argv[1], list(argv[2:])
+    flag = None
+    if "--newsletter" in rest:
+        i = rest.index("--newsletter")
+        if i + 1 >= len(rest):
+            raise SystemExit("--newsletter needs a slug")
+        flag = rest[i + 1]
+        del rest[i:i + 2]
+    if cmd == "newsletters":
+        return cmd_newsletters()
+    if cmd == "privacy-check":
+        return cmd_privacy_check([x for x in rest if x != "--staged"], staged="--staged" in rest)
+    if cmd == "setup":
+        use_newsletter(slug_for(flag=flag))
+        day = rest[rest.index("--date") + 1] if "--date" in rest else None
+        return cmd_setup(test="--test" in rest, day=day)
     if cmd == "last":
+        use_newsletter(slug_for(flag=flag))
         return cmd_last()
     if cmd == "site":
+        if "--all" in rest:
+            rc = 0
+            for slug in newsletter_slugs():
+                use_newsletter(slug)
+                rc |= cmd_site()
+            return rc
+        use_newsletter(slug_for(flag=flag))
         return cmd_site()
     if cmd == "youtube" and rest:
         since = rest[rest.index("--since") + 1] if "--since" in rest else None
         return cmd_youtube(rest[0], since=since)
-    if cmd == "publish" and rest:
-        return cmd_publish(rest[0])
     if cmd == "wait-live" and rest:
         return cmd_wait_live(rest[0])
     if cmd == "fetch" and rest:
         mx = int(rest[rest.index("--max") + 1]) if "--max" in rest else 40000
         return cmd_fetch(rest[0], show_links="--links" in rest, max_chars=mx)
-    if cmd in ("validate", "render", "links") and rest:
-        return {"validate": cmd_validate, "render": cmd_render, "links": cmd_links}[cmd](rest[0])
+    if cmd in ("validate", "render", "links", "publish") and rest:
+        p, issue = load(rest[0])
+        use_newsletter(slug_for(p, issue, flag))
+        return {"validate": cmd_validate, "render": cmd_render, "links": cmd_links, "publish": cmd_publish}[cmd](rest[0])
     print(__doc__)
     return 2
 
