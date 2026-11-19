@@ -1,6 +1,6 @@
 # Field Notes: production runbook
 
-Every newsletter on this engine is produced by following this file. The scheduled task for each newsletter starts a **fresh session**, names the newsletter by its slug (`S`, e.g. `ai-field-notes` or `marketing-ai`) and gives the owner's address, then says "follow RUNBOOK.md". The run is unattended: do not ask questions; make reasonable calls and report them at the end.
+Every newsletter on this engine is produced by following this file. The scheduled task for each newsletter starts a **fresh session**, names the newsletter by its slug (`S`, e.g. `ai-field-notes` or `marketing-ai`) and gives the owner's address, then says "follow RUNBOOK.md". If the instructions name no newsletter, it is `ai-field-notes` (the original AI Field Notes task predates this file's multi-newsletter form). The run is unattended: do not ask questions; make reasonable calls and report them at the end.
 
 Where things live:
 
