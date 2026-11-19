@@ -71,7 +71,7 @@ python3 scripts/fieldnotes.py wait-live https://kevindhoffman.github.io/ai_field
 
 ## 6. Recipients
 
-Read the Google Doc **"AI Field Notes - Subscribers"** (Drive file id `1ZvP1Yu4GaU0BSacKhYXDAbsda6vkyyxW7xlpOZx0aBw`) with the Google Drive `read_file_content` tool. Recipients are the lines after the `START` line that look like email addresses. Skip blank lines and lines starting with `#` (the Drive export may show it as `\#`). The first address is **To**; all others are **Bcc**.
+Read the Google Doc **"AI Field Notes - Subscribers"** (Drive file id `1ZvP1Yu4GaU0BSacKhYXDAbsda6vkyyxW7xlpOZx0aBw`) with the Google Drive `read_file_content` tool. Recipients are the lines after the `START` line that look like email addresses. Skip blank lines and lines starting with `#` (the Drive export may show it as `\#`). **Every subscriber goes in Bcc**, so no reader ever sees another reader's address. **To** is the owner address named in the scheduled task's instructions (listed there as the owner fallback address). If the owner's address is also in the subscriber list, don't repeat it in Bcc.
 
 If the document can't be read or yields no addresses, send only to the owner address named in the scheduled task's instructions, and say so prominently in the final report.
 
@@ -81,13 +81,13 @@ Never write subscriber addresses into the repository: it is public.
 
 1. **Duplicate check.** Search Gmail for `in:sent subject:"AI Field Notes | D"`. If a message exists, don't send again; record its id in step 8 and go on.
 2. **Send** with the Gmail `send_message` tool:
-   - `to`: the first recipient; `bcc`: the rest
+   - `to`: the owner address only; `bcc`: every subscriber (never put a subscriber in `to` or `cc`)
    - `subject`: `AI Field Notes | D`
    - `htmlBody`: the **entire, exact** contents of `issues/D/email.html`. Never a summary, link or attachment instead.
    - `body`: the plain-text fallback, `AI Field Notes, Edition N. This issue is best read as HTML. Web edition: https://kevindhoffman.github.io/ai_field_notes/issues/D.html`
 3. A send counts only when the tool returns a message `id`.
 4. **If the send errors or times out**, search Sent (step 7.1) before doing anything else. Retry **at most once**, and only if nothing is in Sent. Never create a duplicate.
-5. **Verify.** Fetch the sent message by id and check the subject, the To and Bcc recipients, and that the last article's headline and the footer are in the body. Gmail clips messages over about 102 KB, so a long issue may show "View entire message"; that is acceptable.
+5. **Verify.** Fetch the sent message by id and check the subject, that To holds only the owner address and Bcc holds the subscribers, and that the last article's headline and the footer are in the body. Gmail clips messages over about 102 KB, so a long issue may show "View entire message"; that is acceptable.
 
 ## 8. Archive and publish
 
