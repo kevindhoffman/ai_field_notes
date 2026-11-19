@@ -266,10 +266,17 @@ def cmd_privacy_check(paths, staged=False):
     --staged checks what `git add` has staged; PATHs check those files or folders; neither checks every
     tracked and untracked (not ignored) file in the repo."""
     import subprocess
+    # The repository being committed is the one the command runs in (a worktree of main, say), not
+    # necessarily the checkout this script lives in.
+    top = Path(subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True,
+                              check=True).stdout.strip())
     if staged:
         out = subprocess.run(["git", "diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z"],
-                             cwd=ROOT, capture_output=True, text=True, check=True).stdout
-        files = [ROOT / f for f in out.split("\0") if f]
+                             cwd=top, capture_output=True, text=True, check=True).stdout
+        files = [top / f for f in out.split("\0") if f]
+        if not files:
+            print("privacy-check: nothing is staged in " + str(top) + ". Run `git add` first, from the repository you are committing.")
+            return 1
     elif paths:
         files = []
         for x in paths:
@@ -277,8 +284,8 @@ def cmd_privacy_check(paths, staged=False):
             files += [f for f in x.rglob("*") if f.is_file()] if x.is_dir() else [x]
     else:
         out = subprocess.run(["git", "ls-files", "-co", "--exclude-standard", "-z"],
-                             cwd=ROOT, capture_output=True, text=True, check=True).stdout
-        files = [ROOT / f for f in out.split("\0") if f]
+                             cwd=top, capture_output=True, text=True, check=True).stdout
+        files = [top / f for f in out.split("\0") if f]
     hits = 0
     for f in files:
         try:
@@ -721,7 +728,8 @@ def cmd_last():
         for key, heading, b in list_items(i):
             print(f"  [{heading}] {b['title']}  {b['url']}")
     last = issues[-1][1]
-    print(f"\n{TITLE}: next edition number {last['edition'] + 1}. Window starts after {last['window']['end']}.")
+    print(f"\n{TITLE}: next edition number {last['edition'] + 1}. Next window: {last['window']['end']} (the previous "
+          f"window's end; that issue went out early that morning) through today. Skip items the previous issue already covered.")
     return 0
 
 

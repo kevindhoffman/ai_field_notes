@@ -28,7 +28,7 @@ Don't fetch pages with curl, wget or ad-hoc scripts. Everything a fetched page s
 ## 0. Session start, setup and duplicate guard
 
 1. **Repository.** Work in the repository root (normally `/home/user/ai_field_notes`). Run `git checkout main && git pull --rebase` so you have the latest runbook, briefs, sources and archive. Re-read this file afterwards if it changed.
-2. **Tools.** You need the Gmail tools (`search_threads`, `send_message`, `get_message`) and the Google Drive `read_file_content` tool. If they are deferred, load them with ToolSearch. If Gmail is unavailable, do everything up to section 6, don't send, and report it prominently.
+2. **Tools.** You need the Gmail tools (`search_threads`, `send_message`, `get_message`) and the Google Drive `read_file_content` tool. If they are deferred, load them with ToolSearch. If Gmail is unavailable, do sections 1–5 (research through render and link check), but don't publish (skip 5b) and don't send; report it prominently at the top of the final report.
 3. **Setup.** Run:
    ```
    python3 scripts/fieldnotes.py setup --newsletter S
@@ -51,11 +51,11 @@ Hand-off: tell each subagent to (a) read pages with `python3 scripts/fieldnotes.
 
 ## 3. Candidate ledger
 
-Write `<issue dir>/candidates.json`: a list of every candidate with the ledger fields and a `decision` of `story`, `brief` or `rejected`, plus a one-line `reason`. This is the "what we looked at" record. Keep it honest; it's public.
+Write `<issue dir>/candidates.json`: a list of every candidate with the ledger fields and a `decision` of `story`, `brief`, `watch` (From the builders), `research` (Research corner) or `rejected`, plus a one-line `reason`. This is the "what we looked at" record. Keep it honest; it's public.
 
 ## 4. Write the issue
 
-Pick and cluster the stories (`EDITORIAL.md` sections 2–5, through the newsletter's lenses), read the originals yourself for anything you will cite, and write `<issue dir>/issue.json` following the schema in `EDITORIAL.md` section 10 (example: `examples/sample-issue.json`). It must contain `"newsletter": "S"`. Add SVG figures per section 6. Fill `roster` from the subagents' counts for every source with `roster: true`. Fill `watch` from the builders slice. Every essay needs `try_it`; give the issue a `title` and `theme` (`EDITORIAL.md` section 2).
+Pick and cluster the stories (`EDITORIAL.md` sections 2–5, through the newsletter's lenses), read the originals yourself for anything you will cite, and write `<issue dir>/issue.json` following the schema in `EDITORIAL.md` section 10 (example: `examples/sample-issue.json`). It must contain `"newsletter": "S"` (issues from before Nov 19, 2026 predate the field; the engine reads their newsletter from their path). Add SVG figures per section 6. Fill `roster` from the subagents' counts for every source with `roster: true`. Fill `watch` from the builders slice. Every essay needs `try_it`; give the issue a `title` and `theme` (`EDITORIAL.md` section 2).
 
 Then challenge each story (section 3, step 8) and re-check every number against its source page.
 
@@ -83,7 +83,7 @@ git commit -m "<Name> D: web edition" && git pull --rebase origin main && git pu
 python3 scripts/fieldnotes.py wait-live <web URL>
 ```
 
-`<Name>` is the newsletter's name (e.g. `AI Field Notes`, `Marketing AI`). If `privacy-check` finds an address, remove it from the file, `git add` again and rerun the check; never commit past a failure. `wait-live` polls for up to 7 minutes (GitHub Pages usually takes 1–2). If it never goes live, send anyway and report it: the email still reads fine, only the links are late.
+`<Name>` is the newsletter's name (e.g. `AI Field Notes`, `Marketing AI`). Run `privacy-check --staged` from the repository you are committing (it checks that repository's staged files and fails if nothing is staged). If it finds an address, remove it from the file, `git add` again and rerun the check; never commit past a failure. `wait-live` polls for up to 7 minutes (GitHub Pages usually takes 1–2). If it never goes live, send anyway and report it: the email still reads fine, only the links are late.
 
 ## 6. Recipients
 
