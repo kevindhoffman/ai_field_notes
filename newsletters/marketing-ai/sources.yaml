@@ -1,0 +1,139 @@
+# Marketing AI | Field Notes source roster.
+# Research starting points, not endorsements or quotas. Follow original sources before commentary.
+# To add a source: copy an entry into the right tier. `roster: true` means it appears in each
+# issue's source-roster table (what it published in the window); other tiers are scanned for
+# material but not listed one by one.
+#
+# How to check a source: read its homepage or archive page with
+# `python3 scripts/fieldnotes.py fetch <url> --links` (see RUNBOOK.md; RSS feeds are often blocked);
+# YouTube channels with `python3 scripts/fieldnotes.py youtube @handle --since <window start>`.
+# Use WebSearch with site:<domain> only to discover posts. Confirm every publish date on the page
+# itself; never guess. A source whose host the network proxy blocks is "unchecked", never "0 posts".
+#
+# Verification (2026-11-19): YouTube handles were checked with the youtube command. Most web hosts
+# below were BLOCKED by the environment's network proxy ("no rule or network setting allows this
+# host"); for those, the latest post date in `note` comes from WebSearch and is marked "(search)".
+# Entries marked "host blocked" need their hostname added to the environment allowlist.
+
+practitioners:          # independent marketing-AI analysts and newsletters; scan every issue, list in roster
+  - {name: "Marketing AI Institute (Paul Roetzer, Mike Kaput), The Artificial Intelligence Show", url: "https://www.marketingaiinstitute.com/blog", roster: true,
+     note: "Weekly podcast and blog on AI for marketers and business leaders. Latest: episode #251, Nov 12, 2026 (search). Host blocked. YouTube @MarketingAIInstitute had no videos since Oct 1; use the blog or podcast pages."}
+  - {name: "Christopher Penn, Almost Timely / Trust Insights", url: "https://almosttimely.substack.com/", urls: ["https://www.christopherspenn.com/", "https://www.trustinsights.ai/blog/"], roster: true,
+     note: "Hands-on AI for marketing analytics, prompting and agents. Trust Insights YouTube posted Nov 19, 2026 (verified; see builders). Newsletter recency not confirmed by search; check the archive. Hosts blocked."}
+  - {name: "Ethan Mollick, One Useful Thing", url: "https://www.oneusefulthing.org/", roster: true,
+     note: "AI at work, adoption and research. Use only when the essay transfers to marketing teams. Latest: Nov 9, 2026 (verified)."}
+  - {name: "Aleyda Solis, SEOFOMO", url: "https://seofomo.co/", roster: true,
+     note: "Weekly SEO and AI-search news and frameworks for measuring AI search presence. Also runs an 'AI Marketers' newsletter. Latest: Aug 30, 2026 issue (search; newer likely). Host blocked."}
+  - {name: "Kevin Indig, Growth Memo", url: "https://www.growth-memo.com/", roster: true,
+     note: "AI search research for marketing leaders; Growth Intelligence Briefs. Latest: Brief #23, Aug 20, 2026 (search). Much of it is paywalled; say so. Host blocked."}
+  - {name: "Cyrus Shepard, Zyppy", url: "https://zyppy.com/", roster: true,
+     note: "SEO experiments. Ran an AI Overviews/AI Mode opt-out test (Sep 1-29, 2026), reported Oct 30, 2026 (search). Small single-site tests: hypotheses, not benchmarks. Host blocked."}
+  - {name: "Mike King, iPullRank", url: "https://ipullrank.com/blog", roster: true,
+     note: "AI search retrieval, 'relevance engineering', query fan-out. October 2026 posts cited in a Nov 6, 2026 deck (search). An agency that sells these services; treat claims accordingly. Host blocked."}
+  - {name: "Emily Kramer, MKT1", url: "https://newsletter.mkt1.co/", roster: true,
+     note: "How marketing teams set up and staff around AI (shared context and skills, AI-assisted hiring). Latest: Oct 2026 (search). B2B-startup lens; translate. Host blocked."}
+  - {name: "Kyle Poyar, Growth Unhinged", url: "https://www.growthunhinged.com/", roster: true,
+     note: "GTM data and guest posts, incl. measuring AI search. Latest: Oct 14, 2026, 2026 State of B2B GTM report (search). Host blocked."}
+  - {name: "Barry Schwartz, Search Engine Roundtable", url: "https://www.seroundtable.com/", roster: true,
+     note: "Daily Google Search and Ads changes, incl. AI Mode ads. Latest: Nov 4, 2026, AI Mode shows up to four ads (search). Go to Google's primary post before citing. Host blocked."}
+  - {name: "Greg Kihlström, The Agile Brand Guide", url: "https://agilebrandguide.com/", roster: true,
+     note: "Daily martech and AI news digest; use for discovery, then cite the primary. Latest: Nov 12, 2026 (search). Host blocked."}
+  - {name: "Alliance for Continuing Education in the Health Professions, Almanac", url: "https://almanac.acehp.org/", roster: true,
+     note: "The CE/CPD sector's own publication: AI surveys of CME/CPD professionals, AI committee guidance, president's messages. Latest: Sep 9, 2026 (search); some content is members-only. Host blocked."}
+
+builders:               # people showing how to apply AI in marketing work; scan every issue, list in roster
+  # YouTube: python3 scripts/fieldnotes.py youtube @handle --since <window start>  (title, date, link, description)
+  - {name: Trust Insights (Christopher Penn, Katie Robbert), youtube: "@TrustInsights", url: "https://www.trustinsights.ai/", roster: true,
+     note: "'You Ask, I Answer' and livestreams: agentic workflows and prompts for marketing and PR. Latest: Nov 19, 2026 (verified)."}
+  - {name: "Nate B Jones (AI News & Strategy Daily)", youtube: "@NateBJones", url: "https://natesnewsletter.substack.com/", roster: true,
+     note: "Daily applied AI strategy; general business, so pick items with a marketing angle. Many Shorts. Latest video Nov 18, newsletter Nov 19, 2026 (verified)."}
+  - {name: Neil Patel, youtube: "@neilpatel", roster: true,
+     note: "Google, AI search and ads changes for marketers. Sells agency services; flag promotion. Latest: Nov 19, 2026 (verified)."}
+  - {name: Ahrefs, youtube: "@AhrefsCom", url: "https://ahrefs.com/blog/", roster: true,
+     note: "SEO and AI-visibility tutorials and monthly product updates. Vendor channel; demos of its own tools are demos. Latest: Oct 28, 2026 (verified)."}
+  - {name: Semrush, youtube: "@semrush", url: "https://www.semrush.com/blog/", roster: true,
+     note: "Spotlight 2026 keynotes on brands in AI answers. Vendor channel. Latest: Nov 17, 2026 (verified)."}
+  - {name: Social Media Examiner, youtube: "@SocialMediaExaminer", roster: true,
+     note: "Weekly hands-on AI for marketers: AI workspaces, agents, AI video editing. Latest: Nov 17, 2026 (verified)."}
+  - {name: Ignite Visibility, youtube: "@IgniteVisibility", roster: true,
+     note: "Paid media and SEO strategy, incl. clicks-to-pipeline measurement. Agency channel; many Shorts. Latest: Nov 18, 2026 (verified)."}
+  - {name: The AI Advantage, youtube: "@aiadvantage", roster: true,
+     note: "Practical walkthroughs of new ChatGPT, Claude and Gemini features for knowledge workers. Latest: Nov 13, 2026 full video (verified)."}
+  - {name: "Lenny's Podcast", youtube: "@lennyspodcast", url: "https://www.lennysnewsletter.com/", roster: true,
+     note: "Product and growth leaders on AI launches and growth playbooks; transcripts on lennysnewsletter.com. Latest: Nov 15, 2026 (verified)."}
+
+builders_rotating:      # scan when time allows, use for discovery; feature when they have the best applied item
+  - {name: Search Engine Journal, youtube: "@searchenginejournal", note: "Mostly Shorts; latest Nov 16, 2026 (verified). Its articles are in trade_press."}
+  - {name: Google Search Central, youtube: "@GoogleSearchCentral", note: "Official; latest Nov 12, 2026 Short (verified). Mostly developer topics."}
+  - {name: HubSpot Marketing, youtube: "@HubSpotMarketing", note: "Mostly Shorts; latest Nov 14, 2026 (verified)."}
+  - {name: Jeff Su, youtube: "@JeffSu", note: "AI productivity for knowledge workers; latest Nov 18, 2026 Short (verified)."}
+  - {name: "Every (AI & I)", youtube: "@EveryInc", url: "https://every.to/", note: "Model comparisons, AI writing workflows; latest Nov 18, 2026 (verified on every.to)."}
+  - {name: Aleyda Solis, youtube: "@aleydasolis", note: "No videos since Aug 20, 2026; check occasionally."}
+  - {name: "Mike King (iPullRank)", youtube: "@ipullrank", note: "No videos since Oct 1, 2026."}
+  - {name: SparkToro, youtube: "@SparkToro", url: "https://sparktoro.com/blog/", note: "No videos since Oct 1, 2026. Blog: latest confirmed Jul 8, 2026 product update (search); a Q3 2026 open-web-traffic study is undated. Host blocked."}
+  - {name: Exit Five, youtube: "@ExitFive", url: "https://www.exitfive.com/newsletter", note: "B2B marketing community; no videos since Oct 1, 2026, and no 2026 newsletter issue found by search. Host blocked."}
+  - {name: Grace Leung, youtube: "@GraceLeung", note: "AI marketing workflows; no videos since Oct 1, 2026."}
+  # Resolve a channel's handle with the youtube command before relying on it; record verified handles here.
+  # Checked and not found (404): @MarketingAgainstTheGrain, @HubSpot, @ContentMarketingInstitute, @LinkedInMarketing.
+  # Dropped 2026-11-19, no post confirmed in the last ~3 months (re-check before re-adding):
+  #   Lily Ray (lilyraynyc.substack.com; latest found Feb-May 2026), Elena Verna (Jul 28, 2026),
+  #   Avinash Kaushik (kaushik.net; Feb 2026), Write Medicine podcast (CME writing; Feb 18, 2026),
+  #   Mark Schaefer, Ann Handley, Glenn Gabe (no dated 2026 post found), MM+M and Marketing Brew (none found).
+
+tool_changelogs:        # often the most directly usable updates; scan every issue
+  - {name: HubSpot product updates, url: "https://www.hubspot.com/product-updates", note: "Also Spotlight (hubspot.com/spotlight) and knowledge.hubspot.com docs. Host blocked."}
+  - {name: HubSpot developer changelog, url: "https://developers.hubspot.com/changelog", note: "API, workflow and integration changes (CRM-LMS syncing). Host blocked."}
+  - {name: Google Ads and Commerce blog, url: "https://blog.google/products/ads-commerce/", note: "AI Mode ads, Performance Max, AI creative. Ads in AI Mode expanded Oct 28, 2026 (search). Host blocked."}
+  - {name: Google Ads announcements, url: "https://support.google.com/google-ads/announcements/", note: "Policy and product notices. Host blocked."}
+  - {name: Google Search Central blog, url: "https://developers.google.com/search/blog", note: "AI search guidance, Search Console reports, robots and AI-training controls. Cited in every past issue. Host blocked."}
+  - {name: Google Search Status Dashboard, url: "https://status.search.google.com/", note: "Core and spam update dates (a November 2026 core update started ~Nov 10, per search). Host blocked."}
+  - {name: Microsoft Advertising blog, url: "https://about.ads.microsoft.com/en/blog", note: "Copilot ads and AI features in Bing. Host blocked."}
+  - {name: LinkedIn Marketing Solutions blog, url: "https://business.linkedin.com/marketing-solutions/blog", note: "B2B and clinician-audience targeting, AI ad tools. Host blocked."}
+  - {name: Meta for Business news, url: "https://www.facebook.com/business/news", note: "Advantage+ and AI creative. Host blocked."}
+  - {name: Salesforce news and release notes, urls: ["https://www.salesforce.com/news/", "https://help.salesforce.com/"], note: "Marketing Cloud and Agentforce for marketing. Host blocked."}
+  - {name: Adobe Experience Cloud release notes, url: "https://experienceleague.adobe.com/en/docs/release-notes/experience-cloud/current", note: "Host blocked."}
+  - {name: Canva newsroom, url: "https://www.canva.com/newsroom/news/", note: "AI design and brand tools. Host blocked."}
+  - {name: Claude release notes, url: "https://support.claude.com/en/articles/12138966-release-notes", note: "Claude apps features (projects, artifacts, connectors). Reachable; latest Nov 17, 2026 (verified)."}
+  - {name: ChatGPT release notes, url: "https://help.openai.com/en/articles/6825453-chatgpt-release-notes", note: "Host blocked. openai.com pages refuse scripts (HTTP 403); use the RSS https://openai.com/news/rss.xml (reachable)."}
+  - {name: Gemini app release notes, url: "https://gemini.google/release-notes/", note: "Also Google Workspace updates, https://workspaceupdates.googleblog.com/. Both hosts blocked."}
+  - {name: Microsoft 365 Copilot blog, url: "https://www.microsoft.com/en-us/microsoft-365/blog/", note: "Redirects to microsoft.com/en-us/copilot/blog/. Reachable."}
+
+platforms_and_labs:     # model labs and platforms whose launches reach marketers; scan every issue
+  - {name: Anthropic, url: "https://www.anthropic.com/news", roster: true, note: "Reachable; latest Nov 19, 2026 (verified)."}
+  - {name: OpenAI, url: "https://openai.com/news/rss.xml", roster: true, note: "Read the RSS feed (reachable); pages return HTTP 403 to scripts."}
+  - {name: Google (Search, Ads, Gemini), urls: ["https://blog.google/", "https://www.thinkwithgoogle.com/"], roster: true, note: "Hosts blocked."}
+  - {name: Microsoft Copilot, url: "https://www.microsoft.com/en-us/copilot/blog/", note: "Reachable."}
+
+trade_press:            # marketing and search trade outlets; scan for discovery, cite the primary they report on
+  - {name: Search Engine Land, url: "https://searchengineland.com/", note: "Latest found: Nov 10, 2026 core-update item (search). Host blocked."}
+  - {name: Search Engine Journal, url: "https://www.searchenginejournal.com/", note: "Covered the Zyppy opt-out test, Oct 2026 (search). Host blocked."}
+  - {name: PPC Land, url: "https://ppc.land/", note: "Ads and search-study coverage; Oct 21, 2026 Semrush AI Overviews study (search). Host blocked."}
+  - {name: MarTech, url: "https://martech.org/", note: "Q4 2026 review (search). Host blocked."}
+  - {name: MarketingProfs, url: "https://www.marketingprofs.com/", note: "Daily news; Nov 2026 items (search). Host blocked."}
+  - {name: Digiday, url: "https://digiday.com/", note: "2026 marketer's guide to AI, agentic AI and GEO/AEO (search). Partly paywalled. Host blocked."}
+  - {name: eMarketer, url: "https://www.emarketer.com/", note: "Pharma/HCP digital-marketing estimates; mostly paywalled. Host blocked."}
+
+research_and_data:      # studies and datasets; record panel, period, sample and method before citing
+  - {name: Ahrefs research, url: "https://ahrefs.com/blog/", note: "AI Overviews on branded searches, Sep 29, 2026 data (search). Vendor panel. Host blocked."}
+  - {name: Semrush research, url: "https://www.semrush.com/blog/", note: "12-month AI Overviews study on commercial keywords, Oct 21, 2026 (search). Vendor panel. Host blocked."}
+  - {name: Seer Interactive, url: "https://www.seerinteractive.com/insights", note: "AI Overviews CTR research; Nov 4, 2026 roundup (search). Agency. Host blocked."}
+  - {name: Similarweb, url: "https://www.similarweb.com/blog/", note: "AI-referral and zero-click traffic data. Host blocked."}
+  - {name: Wolters Kluwer clinician research, url: "https://www.wolterskluwer.com/en/expert-insights", note: "Future Ready Healthcare survey and HCP benchmarks. Commercial publisher; heavily used in past issues (see EDITORIAL.md continuity). Host blocked."}
+  - {name: JMIR Medical Education, url: "https://mededu.jmir.org/", note: "Medical-education trials incl. AI simulations. Host blocked."}
+  - {name: Journal of Continuing Education in the Health Professions, url: "https://journals.lww.com/jcehp/", note: "CE/CPD research. Host blocked."}
+  - {name: PubMed, url: "https://pubmed.ncbi.nlm.nih.gov/", note: "Find medical-education and clinician-information studies. Host blocked."}
+
+standards_policy_and_privacy:   # check when a story touches accreditation, claims, consent or AI controls; link here, not to coverage
+  - {name: ACCME, urls: ["https://accme.org/news/", "https://accme.org/resource/guidance-on-ai/", "https://accme.org/rules/standards/"], note: "Accreditation rules, AI guidance, data updates, PARS. Primary for the sector; see continuity before re-covering. Host blocked."}
+  - {name: Joint Accreditation for Interprofessional Continuing Education, url: "https://www.jointaccreditation.org/", note: "Host blocked."}
+  - {name: ANCC (nursing CE accreditation), url: "https://www.nursingworld.org/ancc/", note: "Host blocked."}
+  - {name: ACPE (pharmacy CE accreditation), url: "https://www.acpe-accredit.org/", note: "Host blocked."}
+  - {name: AMA PRA credit system, url: "https://www.ama-assn.org/", note: "Credit designation and wording. Host blocked."}
+  - {name: CME Passport, url: "https://cmepassport.org/", note: "Clinician-facing activity discovery. Host blocked."}
+  - {name: FTC, url: "https://www.ftc.gov/news-events/news/press-releases", note: "AI claims, endorsements and reviews, health-data enforcement. Host blocked."}
+  - {name: HHS HIPAA guidance, url: "https://www.hhs.gov/hipaa/index.html", note: "Online tracking technologies on health-adjacent pages. Host blocked."}
+  - {name: IAPP, url: "https://iapp.org/news/", note: "State and international privacy-law tracking. Host blocked."}
+  - {name: European Data Protection Board, url: "https://edpb.europa.eu/", note: "GDPR guidance for international audiences. Host blocked."}
+  - {name: IAB and IAB Tech Lab, url: "https://www.iab.com/", note: "Ad standards, AI disclosure, privacy frameworks. Host blocked."}
+  - {name: IETF AI Preferences working group, url: "https://datatracker.ietf.org/wg/aipref/about/", note: "Shared AI-training preference signals (cf. Google's Oct 30, 2026 robots.txt plan). Host blocked."}
+  - {name: C2PA content credentials, url: "https://c2pa.org/", note: "Provenance labels for AI-generated images and video. Host blocked."}
