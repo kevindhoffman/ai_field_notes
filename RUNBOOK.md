@@ -71,7 +71,7 @@ python3 scripts/fieldnotes.py wait-live https://kevindhoffman.github.io/ai_field
 
 ## 6. Recipients
 
-Read the Google Doc **"AI Field Notes - Subscribers"** (Drive file id `1ZvP1Yu4GaU0BSacKhYXDAbsda6vkyyxW7xlpOZx0aBw`) with the Google Drive `read_file_content` tool. Recipients are the lines after the `START` line that look like email addresses. Skip blank lines and lines starting with `#` (the Drive export may show it as `\#`). **Every subscriber goes in Bcc**, so no reader ever sees another reader's address. **To** is the owner address named in the scheduled task's instructions (listed there as the owner fallback address). If the owner's address is also in the subscriber list, don't repeat it in Bcc.
+Read the Google Doc **"AI Field Notes - Subscribers"** (Drive file id `1ZvP1Yu4GaU0BSacKhYXDAbsda6vkyyxW7xlpOZx0aBw`) with the Google Drive `read_file_content` tool. Recipients are the lines after the `START` line that look like email addresses. Skip blank lines and lines starting with `#` (the Drive export may show it as `\#`). **Every subscriber goes in Bcc**, so no reader ever sees another reader's address. **To** is the owner address named in the scheduled task's instructions (listed there as the owner fallback address; use it as To on every send, even where the instructions call it a fallback only). If the owner's address is also in the subscriber list, don't repeat it in Bcc.
 
 If the document can't be read or yields no addresses, send only to the owner address named in the scheduled task's instructions, and say so prominently in the final report.
 
