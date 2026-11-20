@@ -87,7 +87,7 @@ The shared evidence rules apply. In addition:
 
 Before choosing stories, run `python3 scripts/fieldnotes.py last` for this newsletter.
 
-**History.** The newsletter ran from Oct 29, 2026 under a different process, at first daily and including weekends, with five essays and a closing "Three experiments to try" block. Edition numbers in past mastheads were inconsistent (the Nov 13 issue said "Issue 13"). This engine starts fresh, going forward only. Past issues are not imported.
+**History.** The newsletter ran from Oct 29, 2026 under a different process, at first daily and including weekends, with five essays and a closing "Three experiments to try" block. Edition numbers in past mastheads were inconsistent (the Nov 13 issue said "Issue 13"). Past issues are not imported, but the numbering continues: 15 issues went out from Oct 29 to Nov 19, 2026, so **the first issue on this engine is Edition 16**, and its window starts **Nov 19, 2026** (the last issue sent under the old process). After that, `last` gives the number and window. The subject line keeps the old format, `Marketing AI | Field Notes — November 23, 2026`, so readers' mail filters keep working.
 
 **What the past issues did well, keep:** naming evidence types; tying every recommendation to the learner path; experiments with a primary measure, a secondary measure and a guardrail; a "The decision" line per essay (carry it into the principle paragraph); a text description for every diagram.
 

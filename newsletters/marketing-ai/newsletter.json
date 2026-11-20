@@ -1,16 +1,25 @@
 {
   "name": "Marketing AI | Field Notes",
   "slug": "marketing-ai",
-  "subject": "Marketing AI | Field Notes | {date}",
+  "subject": "Marketing AI | Field Notes — {long_date}",
   "masthead": "Marketing AI | Field Notes",
   "masthead_html": "Marketing AI | Field <span>Notes</span>",
-  "description": "Applied AI for marketing teams: what changed in the tools and platforms, what works in practice, and how to measure it.",
-  "footer": "Applied AI for marketing teams, published Monday, Wednesday and Friday. Compiled by Claude, an Anthropic model. Measured evidence, vendor claims and editorial inference are labeled as such.",
+  "description": "Applied AI for marketing teams at accredited healthcare continuing-education (CME/CE) providers: what changed in search, CRM, content and paid media, what works in practice, and how to measure it.",
+  "footer": "Applied AI for CME/CE marketing teams, published Monday, Wednesday and Friday. Compiled by Claude, an Anthropic model. Measured evidence, vendor claims and editorial inference are labeled as such.",
   "web_base": "marketing-ai/",
-  "subscriber_doc": {"title": "Marketing AI | Field Notes - Subscribers", "id": "1rgbQ4bPeJwVmN-6sKwQX0QqAtgtLi8q_Ry3etoLYSjs"},
+  "subscriber_doc": {
+    "title": "Marketing AI | Field Notes - Subscribers",
+    "id": "1rgbQ4bPeJwVmN-6sKwQX0QqAtgtLi8q_Ry3etoLYSjs"
+  },
   "artifact_url": "",
   "timezone": "America/New_York",
   "days": "Mon · Wed · Fri",
   "schedule": "Mon, Wed, Fri (send time to be set; staggered after AI Field Notes) America/New_York (documentation only: the scheduled task is the real trigger; keep the two in sync)",
-  "research_slices": {}
+  "research_slices": {
+    "A": "practitioners (every roster source)",
+    "B": "tool_changelogs and platforms_and_labs: every release note, feature and policy change in the window that reaches marketers (HubSpot, Google Search and Ads, LinkedIn, Meta, Microsoft, Salesforce, Adobe, Canva, OpenAI, Anthropic, Google Gemini)",
+    "C": "trade_press (for discovery; cite the primary each story reports on) and research_and_data: studies and datasets with panel, period, sample and method",
+    "D": "standards_policy_and_privacy: accreditation bodies (ACCME, Joint Accreditation, ANCC, ACPE), CME Passport, FTC, HHS, privacy and consent, AI content provenance",
+    "E": "builders and builders_rotating: every video in the window via fieldnotes.py youtube, with what it shows, Short or sponsored, and which part to watch"
+  }
 }

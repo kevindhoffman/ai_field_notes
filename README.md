@@ -5,7 +5,7 @@ One engine that researches, writes and emails several newsletters, each written 
 | Newsletter | Folder | Web archive |
 |---|---|---|
 | **AI Field Notes**: a technical magazine on engineering AI systems (agents, evaluation, retrieval, context, security, operations). Mon/Wed/Fri. | [`newsletters/ai-field-notes/`](newsletters/ai-field-notes/) | https://kevindhoffman.github.io/ai_field_notes/ |
-| **Marketing AI \| Field Notes**: applied AI for marketing teams. Mon/Wed/Fri. | [`newsletters/marketing-ai/`](newsletters/marketing-ai/) | https://kevindhoffman.github.io/ai_field_notes/marketing-ai/ |
+| **Marketing AI \| Field Notes**: applied AI for marketing teams at accredited healthcare continuing-education (CME/CE) providers. Mon/Wed/Fri. | [`newsletters/marketing-ai/`](newsletters/marketing-ai/) | https://kevindhoffman.github.io/ai_field_notes/marketing-ai/ |
 
 ## Layout
 

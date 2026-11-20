@@ -1011,7 +1011,7 @@ def cmd_setup(test=False, day=None):
     from datetime import datetime
     d = day or datetime.now(ZoneInfo(NL.get("timezone", "America/New_York"))).date().isoformat()
     slug = NL["slug"]
-    subject = ("[TEST] " if test else "") + NL["subject"].format(date=d)
+    subject = ("[TEST] " if test else "") + NL["subject"].format(date=d, long_date=long_date(d))
     folder = Path("/tmp/fieldnotes-test") / slug / d if test else ISSUES / d
     wpath = f"tests/{d}" if test else f"issues/{d}"
     url = f"{SITE_URL}{wpath}.html"
