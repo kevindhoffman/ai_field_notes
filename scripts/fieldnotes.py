@@ -77,7 +77,10 @@ def use_newsletter(slug):
     NL = read_newsletter(slug)
     TITLE = NL["name"]
     SITE_URL = SITE_ROOT + NL["web_base"]
-    ISSUES = Path(os.environ.get("FIELDNOTES_ISSUES", NEWSLETTERS / slug / "issues"))
+    # A private newsletter's archive never enters the public repo: the run restores it from the owner's
+    # Drive folder into this scratch path, and uploads the new issue back there after sending.
+    default = (Path("/tmp/fieldnotes-private") / slug / "issues") if NL.get("public", True) is False else NEWSLETTERS / slug / "issues"
+    ISSUES = Path(os.environ.get("FIELDNOTES_ISSUES", default))
     DOCS = DOCS_ROOT / NL["web_base"] if NL["web_base"] else DOCS_ROOT
     return NL
 
@@ -390,7 +393,7 @@ def render_web(issue, archive_link=False):
                      f'<p>{th["html"]}</p><p class="evidence"><b>Evidence standard.</b> {issue.get("evidence_standard", NL.get("evidence_standard", EVIDENCE_STANDARD))}</p></section>')
     if issue.get("top"):
         items = "".join(f'<li>{t["html"]}</li>' for t in issue["top"])
-        parts.append(f'<section class="top" aria-labelledby="top-h"><h2 id="top-h">If you read nothing else</h2><ol>{items}</ol></section>')
+        parts.append(f'<section class="top" aria-labelledby="top-h"><h2 id="top-h">{esc(NL.get("top_heading", "If you read nothing else"))}</h2><ol>{items}</ol></section>')
     toc = [f'<li><a href="#{a["id"]}"><span class="k">{esc(section_label(i, a["kicker"]))}</span><span>{esc(a["headline"])}</span></a></li>'
            for i, a in enumerate(arts, 1)]
     for key, heading, _ in LIST_SECTIONS:
@@ -416,7 +419,9 @@ def render_web(issue, archive_link=False):
                      '<div class="tbl"><table><thead><tr><th>Source</th><th style="text-align:right;padding-right:16px">Posts</th><th>Notes</th></tr></thead>'
                      f"<tbody>{rows}</tbody></table></div></section>")
     footer = issue.get("footer") or NL["footer"]
-    parts.append(f'<footer><p>{footer}</p><p>Past issues and a searchable source index: <a href="{SITE_URL}">{SITE_URL}</a></p>'
+    archive = ("<p>A private newsletter: it has no public web archive.</p>" if is_private()
+               else f'<p>Past issues and a searchable source index: <a href="{SITE_URL}">{SITE_URL}</a></p>')
+    parts.append(f'<footer><p>{footer}</p>{archive}'
                  f'<p class="mono">Compiled {esc(long_date(issue["date"]))}</p></footer>')
     return page(f'{TITLE} · {issue["date"]}', "\n".join(parts), strip_tags(issue["lede"]))
 
@@ -465,6 +470,11 @@ def web_path(issue):
     return issue.get("web_path") or f"issues/{issue['date']}"
 
 
+def is_private():
+    """A private newsletter has no web edition: nothing on the public site, no web links in the email."""
+    return NL.get("public", True) is False
+
+
 def web_url(issue):
     return f"{SITE_URL}{web_path(issue)}.html"
 
@@ -490,7 +500,8 @@ def email_article(a, n=1, images=None):
             block = (f'<div style="margin:4px 0 16px;padding:12px 14px;background:{E["surface"]};border:1px solid {E["border"]};border-radius:8px;'
                      f'color:{E["soft"]};font-size:14px;"><span style="font-family:{E["mono"]};font-size:11px;color:{E["deep"]};text-transform:uppercase;">'
                      f'Diagram, described</span><br><b style="color:{E["ink"]};">{esc(fig["claim"])}</b> {email_links(fig["email_description"])}{how}'
-                     f'<br><a style="color:{E["accent"]};font-weight:bold;" href="{{webpage}}#{a["id"]}">See the diagram in the full article on the web →</a></div>')
+                     + ("" if is_private() else f'<br><a style="color:{E["accent"]};font-weight:bold;" href="{{webpage}}#{a["id"]}">See the diagram in the full article on the web →</a>')
+                     + '</div>')
         paras.insert(min(fig.get("after_paragraph") or len(paras), len(paras)), block)
     tail = ""
     if a.get("try_it"):
@@ -519,8 +530,8 @@ def render_email(issue, images=None):
     arts = issue["articles"]
     rows = []
     rows.append(f'<tr><td style="padding:8px 0 18px;">'
-                f'<p style="margin:0 0 6px;color:{E["muted"]};font-family:{E["mono"]};font-size:12px;">Edition {issue["edition"]} · {esc(long_date(issue["date"]))} · '
-                f'<a style="color:{E["accent"]};" href="{web_url(issue)}">Read on the web</a></p>'
+                f'<p style="margin:0 0 6px;color:{E["muted"]};font-family:{E["mono"]};font-size:12px;">Edition {issue["edition"]} · {esc(long_date(issue["date"]))}'
+                + ("" if is_private() else f' · <a style="color:{E["accent"]};" href="{web_url(issue)}">Read on the web</a>') + '</p>'
                 + (f'<p style="margin:0 0 4px;color:{E["deep"]};font-family:{E["mono"]};font-size:12px;text-transform:uppercase;letter-spacing:.08em;">{esc(NL["masthead"])}</p>'
                    f'<h1 style="margin:0 0 10px;font-size:32px;line-height:1.1;color:{E["ink"]};">{esc(issue["title"])}</h1>' if issue.get("title")
                    else f'<h1 style="margin:0 0 10px;font-size:34px;line-height:1.05;color:{E["ink"]};">{esc(NL["masthead"])}</h1>')
@@ -535,7 +546,7 @@ def render_email(issue, images=None):
     if issue.get("top"):
         items = "".join(f'<li style="margin:0 0 8px;">{email_links(t["html"])}</li>' for t in issue["top"])
         rows.append(f'<tr><td style="padding:0 0 18px;"><div style="padding:14px 16px;background:{E["surface"]};border:1px solid {E["border"]};border-top:3px solid {E["accent"]};border-radius:12px;">'
-                    f'<p style="margin:0 0 8px;font-weight:bold;font-size:17px;color:{E["ink"]};">If you read nothing else</p>'
+                    f'<p style="margin:0 0 8px;font-weight:bold;font-size:17px;color:{E["ink"]};">{esc(NL.get("top_heading", "If you read nothing else"))}</p>'
                     f'<ol style="margin:0;padding-left:20px;color:{E["soft"]};">{items}</ol></div></td></tr>')
     toc = "".join(f'<li style="margin:0 0 4px;"><span style="font-family:{E["mono"]};font-size:11px;color:{E["muted"]};text-transform:uppercase;">{esc(section_label(i, a["kicker"]))}</span> · '
                   f'<a style="color:{E["accent"]};" href="#{a["id"]}">{esc(a["headline"])}</a></li>' for i, a in enumerate(arts, 1))
@@ -562,8 +573,10 @@ def render_email(issue, images=None):
     footer = issue.get("footer") or NL["footer"]
     rows.append(f'<tr><td style="padding:24px 0 0;border-top:1px solid {E["border"]};color:{E["muted"]};font-size:13px;">'
                 f'<p style="margin:0 0 6px;">{footer}</p>'
-                f'<p style="margin:0;">Past issues and a searchable source index: <a style="color:{E["accent"]};" href="{SITE_URL}">{SITE_URL}</a>. '
-                f'To stop receiving it, reply and say so.</p></td></tr>')
+                + ('<p style="margin:0;">A private newsletter with no public web archive. To stop receiving it, reply and say so.</p></td></tr>'
+                   if is_private() else
+                   f'<p style="margin:0;">Past issues and a searchable source index: <a style="color:{E["accent"]};" href="{SITE_URL}">{SITE_URL}</a>. '
+                   f'To stop receiving it, reply and say so.</p></td></tr>'))
     return ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{TITLE} | {issue["date"]}</title></head>'
             f'<body style="margin:0;padding:0;background:{E["canvas"]};">'
@@ -571,7 +584,9 @@ def render_email(issue, images=None):
             f'<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:100%;max-width:640px;font-family:{E["sans"]};font-size:16px;line-height:1.6;color:{E["ink"]};">'
             # Gmail disables in-message anchors (href="#a1" becomes javascript:void), so point them
             # at the same anchor in the web edition, which works in every client.
-            + re.sub(r'href="#([\w-]+)"', lambda m: f'href="{web_url(issue)}#{m.group(1)}"', "".join(rows))
+            # A private newsletter has no web edition, so its in-message links become plain text.
+            + (re.sub(r'<a style="[^"]*" href="#[\w-]+">(.*?)</a>', r"\1", "".join(rows)) if is_private() else
+               re.sub(r'href="#([\w-]+)"', lambda m: f'href="{web_url(issue)}#{m.group(1)}"', "".join(rows)))
             + "</table></td></tr></table></body></html>")
 
 
@@ -622,7 +637,7 @@ def parity(issue, web, mail):
     """Every article heading, link and paragraph must appear in both editions."""
     w, m = collect(web), collect(mail)
     problems = []
-    wh = [h for h in w.h2 if h not in ("If you read nothing else",)]
+    wh = [h for h in w.h2 if h != NL.get("top_heading", "If you read nothing else")]
     mh = [h for h in m.h2]
     if wh != mh:
         problems.append(f"heading mismatch:\n  web:   {wh}\n  email: {mh}")
@@ -769,6 +784,9 @@ def publish_issue(issue, folder, archive_link=True):
 def cmd_publish(path):
     """Copy one issue's web edition and diagram images into docs/ (use before sending, then commit and push docs/)."""
     p, issue = load(path)
+    if is_private():
+        print(f"{TITLE} is private: it has no web edition. Skip publishing (RUNBOOK, private newsletters).")
+        return 0
     if not (p.parent / "web.html").exists():
         print("render first: python3 scripts/fieldnotes.py render " + str(path))
         return 1
@@ -808,6 +826,9 @@ def siblings_note():
 
 
 def cmd_site():
+    if is_private():
+        print(f"{TITLE} is private: no web archive to build.")
+        return 0
     DOCS_ROOT.mkdir(parents=True, exist_ok=True)
     (DOCS_ROOT / ".nojekyll").write_text("")
     (DOCS / "issues").mkdir(parents=True, exist_ok=True)
@@ -1001,7 +1022,8 @@ def cmd_newsletters():
     for slug in newsletter_slugs():
         nl = read_newsletter(slug)
         n = len(list((NEWSLETTERS / slug / "issues").glob("*/issue.json")))
-        print(f"{slug:18} {nl['name']}  ·  {n} issue(s)  ·  {SITE_ROOT}{nl['web_base']}  ·  {nl.get('schedule', '')}")
+        where = "private: no web archive, issues kept in Drive" if nl.get("public", True) is False else f"{n} issue(s)  ·  {SITE_ROOT}{nl['web_base']}"
+        print(f"{slug:18} {nl['name']}  ·  {where}  ·  {nl.get('schedule', '')}")
     return 0
 
 
@@ -1023,19 +1045,25 @@ def cmd_setup(test=False, day=None):
     print(f"ISSUE DIR    {rel}/")
     print(f"EDITORIAL    EDITORIAL.md (shared) + newsletters/{slug}/EDITORIAL.md")
     print(f"SOURCES      newsletters/{slug}/sources.yaml")
+    if is_private():
+        print(f"PRIVATE      no web edition, nothing about its issues goes in the repo. Archive: Drive folder "
+              f"\"{NL['archive_drive_folder']['title']}\" (id {NL['archive_drive_folder']['id']}). See RUNBOOK 'Private newsletters'.")
     if test:
         print(f'ISSUE.JSON   must contain "newsletter": "{slug}" and "web_path": "{wpath}"')
     else:
         print(f'ISSUE.JSON   must contain "newsletter": "{slug}"')
-    print(f"WEB EDITION  {docs_out}  ->  {url}")
+    if not is_private():
+        print(f"WEB EDITION  {docs_out}  ->  {url}")
     print(f"GMAIL DUP    in:sent subject:\"{subject}\"")
-    print(f"PLAIN BODY   {NL['name']}, Edition N. This issue is best read as HTML. Web edition: {url}")
+    print(f"PLAIN BODY   {NL['name']}, Edition N. This issue is best read as HTML."
+          + ("" if is_private() else f" Web edition: {url}"))
     if test:
         print("RECIPIENTS   the owner address from the request only (To); no subscriber doc, no Bcc")
     else:
         sd = NL["subscriber_doc"]
         print(f"RECIPIENTS   Google Doc \"{sd['title']}\" (Drive id {sd['id']}); To = owner address, every subscriber Bcc")
-        print(f"READING PAGE {NL.get('artifact_url') or '(none yet: create one on the first real run, then record it in newsletter.json)'}")
+        if not is_private():
+            print(f"READING PAGE {NL.get('artifact_url') or '(none yet: create one on the first real run, then record it in newsletter.json)'}")
     for k, v in NL.get("research_slices", {}).items():
         print(f"SLICE {k}      {v}")
     if (folder / "sent.json").exists():

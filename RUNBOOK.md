@@ -11,7 +11,7 @@ Where things live:
 | The newsletter's identity: mission, reader, tone, cadence, lenses, continuity | `newsletters/S/EDITORIAL.md` |
 | Its sources | `newsletters/S/sources.yaml` |
 | Its name, subject format, subscriber doc, reading page, web path | `newsletters/S/newsletter.json` |
-| Its archive | `newsletters/S/issues/D/` |
+| Its archive | `newsletters/S/issues/D/` (a private newsletter keeps it in a Drive folder instead: see "Private newsletters") |
 | Its web edition (GitHub Pages) | `docs/` + its `web_base` (AI Field Notes is at the root of `docs/`) |
 
 **Reading the web.** Use, in this order:
@@ -126,6 +126,17 @@ Run when asked for a "TEST issue". Follow every step above, with these differenc
 - **Web edition:** add `"newsletter": "S"` and `"web_path": "tests/D"` to the test `issue.json` before rendering. In 5b, `publish` writes the page under the newsletter's `tests/` folder in `docs/` (not linked from any archive index); `git add` only that page (the path `setup` printed) plus its diagram folder if any, run the privacy check, commit and push, so the test email's links work.
 - **Skip the rest of section 8** except writing `sent.json` into the test directory: no `site`, no other commit, no artifact publish.
 - Report the usual summary plus anything in this runbook that was unclear or got in the way.
+
+## Private newsletters
+
+A newsletter whose `newsletter.json` has `"public": false` (Office Hours) has **no web edition and leaves no trace of its issues in this public repository**. `setup` says PRIVATE and names its Drive archive folder. Follow every step above, with these differences:
+
+- **Before section 1, restore the archive.** List the Drive archive folder that `setup` names (Google Drive `search_files` with the folder as parent). Download the three most recent issue files (named `<D>-issue.json`) with `download_file_content` and save each as `/tmp/fieldnotes-private/S/issues/<D>/issue.json`. Then `last --newsletter S` works as usual. An empty folder means Edition 1 (see the brief's Continuity section).
+- **Issue dir** is `/tmp/fieldnotes-private/S/issues/D/` (outside the repo). Research files, `candidates.json` and `issue.json` go there.
+- **Never name the readers' employer, its internal systems, programs, customers or people**, in the issue or anywhere else. Everything comes from public sources.
+- **Skip 5b** (`publish` refuses; there is nothing to publish). The email has no web links, so nothing needs to be live.
+- **Section 8:** write `sent.json` in the issue dir, then upload the new `issue.json` to the Drive archive folder as `<D>-issue.json` and `candidates.json` as `<D>-candidates.json` (Google Drive `create_file` with that `parentId`, `contentMimeType` `application/json`, and `disableConversionToGoogleType: true`). Check with `get_file_permissions` that the folder is still shared with no one. **No `site`, no commit, no push, no artifact.** If anything in the repo changed during the run, don't commit it; report it.
+- **Final report** says where the issue was archived (folder and file names), not a commit.
 
 ## 9. Final report
 

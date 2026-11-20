@@ -1,0 +1,33 @@
+# Office Hours | Field Notes source roster (public sources only).
+# Research starting points, not endorsements or quotas. Read pages only with
+# `python3 scripts/fieldnotes.py fetch <url> --links`; channels with `python3 scripts/fieldnotes.py youtube @handle --since <date>`.
+# The first slice reuses AI Field Notes' research for the same week (see newsletter.json research_slices.A).
+
+beginners_and_adoption:   # techniques and habits for non-coders; scan every issue
+  - {name: "Ethan Mollick, One Useful Thing", url: "https://www.oneusefulthing.org/", roster: true,
+     note: "How ordinary knowledge workers get value from AI; prompting and adoption research."}
+  - {name: Every, url: "https://every.to/", roster: true, note: "Practical AI workflows for knowledge work."}
+  - {name: "Lenny's Newsletter (AI posts)", url: "https://www.lennysnewsletter.com/", roster: true, note: "Workflows from product and business people; often paywalled."}
+  - {name: "Nate B Jones", url: "https://natesnewsletter.substack.com/", youtube: "@NateBJones", roster: true,
+     note: "Plain-language explanations of what a development means for your work."}
+  - {name: Simon Willison, url: "https://simonwillison.net/", roster: true, note: "Clear, honest explanations; good for builders and for demystifying terms."}
+
+vendor_learning_and_updates:   # official how-to material and product changes; teach the idea, label fit
+  - {name: Anthropic news and engineering, url: "https://www.anthropic.com/news", note: "Also https://www.anthropic.com/engineering and https://docs.claude.com/ for prompting guides."}
+  - {name: OpenAI news, url: "https://openai.com/news/rss.xml", note: "RSS feed; article pages often refuse scripts."}
+  - {name: Google AI, url: "https://blog.google/technology/ai/", note: "Gemini and Workspace AI changes."}
+  - {name: Microsoft Learn (Copilot), url: "https://learn.microsoft.com/", note: "Official Copilot how-to material."}
+  - {name: GitHub changelog, url: "https://github.blog/changelog/", note: "Coding-assistant changes, for builders."}
+  - {name: Claude Code docs, url: "https://code.claude.com/", note: "Agentic coding patterns, for builders."}
+
+builders:   # videos; at least one per issue a newcomer can follow
+  - {name: The AI Advantage, youtube: "@aiadvantage", roster: true, note: "Beginner-friendly walkthroughs of new features and prompts."}
+  - {name: Nate B Jones, youtube: "@NateBJones", roster: true}
+  - {name: IndyDevDan, youtube: "@indydevdan", note: "Agentic coding workflows, for builders."}
+  - {name: Cole Medin, youtube: "@ColeMedin", note: "Agent builds, for builders. Flag sponsored Shorts."}
+  - {name: Trust Insights, youtube: "@TrustInsights", note: "Practical, non-hype business use of AI."}
+
+practitioners_for_builders:   # scan for the Builder's bench
+  - {name: Hamel Husain, url: "https://hamel.dev/", note: "Evals and LLM reliability."}
+  - {name: Martin Fowler, url: "https://martinfowler.com/", note: "AI-assisted engineering practice."}
+  - {name: Latent Space, url: "https://www.latent.space/", note: "Frontier practitioner interviews."}

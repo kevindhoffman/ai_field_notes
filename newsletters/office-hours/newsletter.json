@@ -1,0 +1,30 @@
+{
+  "name": "Office Hours | Field Notes",
+  "slug": "office-hours",
+  "public": false,
+  "subject": "Office Hours | Field Notes — {long_date}",
+  "masthead": "Office Hours | Field Notes",
+  "masthead_html": "Office Hours | Field <span>Notes</span>",
+  "description": "A weekly companion to an internal AI office hours: one technique anyone can try in a chat window, one for builders, and an agenda for the session.",
+  "footer": "A weekly companion to AI office hours, sent Thursday mornings. Compiled by Claude, an Anthropic model, from public sources only. Every item is labeled for whether it fits a locked-down enterprise environment.",
+  "web_base": "office-hours/",
+  "subscriber_doc": {
+    "title": "Office Hours | Field Notes - Subscribers",
+    "id": "1mXjQ7-BVdWx56zk2mU4EuZtm5gbcE0nrdnEWWx3NW44"
+  },
+  "archive_drive_folder": {
+    "title": "Office Hours | Field Notes - Archive (private)",
+    "id": "19Qaktl6Iwh_oXrACYwnYmfIm3KOecvHD"
+  },
+  "artifact_url": "",
+  "timezone": "America/New_York",
+  "days": "Thursday",
+  "schedule": "Thursdays, early morning America/New_York, staggered so it never overlaps the other newsletters (documentation only: the scheduled task is the real trigger)",
+  "research_slices": {
+    "A": "AI Field Notes, last 7 days: read newsletters/ai-field-notes/issues/<dates in the window>/issue.json and candidates.json; pick what translates to chat-only users or to builders with an approved coding assistant",
+    "B": "beginners_and_adoption: techniques and habits a non-coder can use in a chat window",
+    "C": "vendor_learning_and_updates: changes to enterprise chat and coding-assistant products and their official how-to material",
+    "D": "builders: every video in the window via fieldnotes.py youtube, picking demos a beginner can follow and ones developers will want"
+  },
+  "top_heading": "For Thursday's session"
+}
