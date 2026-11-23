@@ -1,0 +1,459 @@
+{
+ "date": "2026-11-23",
+ "edition": 4,
+ "window": {
+  "start": "2026-11-20",
+  "end": "2026-11-23"
+ },
+ "title": "Check the checker",
+ "lede": "Four essays on the things we trust without testing: benchmark graders, repository rules files, recovery features and lead agents that summarize their subagents.",
+ "theme": {
+  "heading": "The controls you assume are working",
+  "html": "The fresh lead is Eugene Yan's teardown of twelve public agent benchmarks, backed by two papers measuring how often graders fail correct work or pass wrong work. The other essays apply the same test elsewhere: a rules file that acts only as advice, recovery features that rarely fully recover, and lead agents that follow the majority instead of weighing the evidence."
+ },
+ "articles": [
+  {
+   "id": "a1",
+   "kicker": "Evaluation",
+   "headline": "Before you trust a benchmark score, audit the grader",
+   "dek": "A teardown of twelve public agent benchmarks and a review of 749 tasks agree: graders often fail correct work, sometimes pass wrong work, and multi-step suites are the least reliable.",
+   "paragraphs": [
+    "Eugene Yan's <a href=\"https://eugeneyan.com/writing/public-evals\">teardown of twelve public evals</a> (Nov 22) starts with a finding that should change how you read a launch chart. In eight of the twelve, audits or issue reports show the grader failing work that should have passed. Reviewers found 41 of 65 Terminal Bench 4.0 tasks graded on requirements the prompt never stated; once those were made explicit, one model's score rose from 63% to 89%. On DeepSWE, hidden test files can clash with tests the agent wrote itself, which penalizes exactly the agents that verify their own work. Graders also pass wrong work: on Harvey LAB, a check against the source documents found material hallucinations in more than 60% of results that passed every rubric item, and on AutomationBench, 55% of assertions only check whether a string is present.",
+    "Two papers posted Nov 20 put numbers on the pattern. <a href=\"https://arxiv.org/abs/2611.27622\">Benchmarks' Last Exam</a> pooled task-level reviews of 749 tasks across eight benchmarks. Question-and-answer suites that had been corrected after public error reports reached 92.5% verified validity; six multi-step agentic suites reached 29.3%. Of the confirmed defects, 71.7% withheld credit from correct solutions and 28.3% let shortcuts pass. Grading the agent's patch in a fresh container cut runtime bypasses from 14.7% to 2.7%. <a href=\"https://arxiv.org/abs/2611.27860\">SplitBench</a> builds that separation in: the agent's environment and the grader run with different privileges. It ported 180 of 202 tasks from existing benchmarks, agreed with their native graders on 98.7% of attempts, and rejected 75% of completed attempts by agents trying to cheat, none of them through a flaw in SplitBench itself.",
+    "Model judges have their own bias. METR's <a href=\"https://metr.org/blog/2026-11-20-q4-2026-capability-update/\">Q4 capability update</a> (Nov 20) found that model judges overestimate an output's quality when it comes from a model as strong as or stronger than themselves, and that tasks which are costlier to build and score, because they need expert grading or real-world interaction, are harder for models than their length predicts. That suggests cheap, auto-graded suites flatter today's models. And a Nov 19 paper, <a href=\"https://arxiv.org/abs/2611.26881\">Your Judge Inherits Your Prompt</a>, showed that skewing a judge's few-shot examples toward \"yes\" raised its acceptance rate by about 20 to 30 points, while skewing them toward \"no\" did not lower it. The bias only inflates.",
+    "In practice, Yan's recommendations double as a checklist for your own evals. Report pass^k, a task counting only if it passes all k runs, next to the average, because two agents at 70% can differ completely in how often you must check their work. When several strong models fail the same check, read the transcripts before blaming the models. Add negative tests: a do-nothing agent and a cheating agent should both score zero. Count review time, not just dollars. And score the model and harness together. Hugging Face's <a href=\"https://huggingface.co/blog/harness-adapters-at-scale\">harness adapters</a> (Nov 20) make the point: a LoRA adapter trained with reinforcement learning inside one harness lifted Qwen3.8-27B on Terminal-Bench 2.1 from 39% to 55% while cutting average tokens per task from 2.9K to 1.5K.",
+    "Our read: as models improve, a growing share of the remaining failures on public benchmarks are grader bugs. Your own eval set is only better if you audit it the same way."
+   ],
+   "figure": {
+    "after_paragraph": 1,
+    "svg": "<svg viewBox=\"0 0 400 262\"><text x=\"12\" y=\"14\" class=\"t-sm t-acc\">BENCHMARKS' LAST EXAM: 749 TASKS REVIEWED</text><text x=\"12\" y=\"38\" class=\"t-sm\">share of tasks verified valid</text><text x=\"12\" y=\"59\" class=\"t-sm\">closed-form</text><rect x=\"118\" y=\"46\" width=\"204\" height=\"18\" rx=\"3\" class=\"box-good\"/><text x=\"328\" y=\"59\" class=\"t-sm t-good\">92.5%</text><text x=\"12\" y=\"85\" class=\"t-sm\">multi-step</text><rect x=\"118\" y=\"72\" width=\"64\" height=\"18\" rx=\"3\" class=\"box-risk\"/><text x=\"188\" y=\"85\" class=\"t-sm t-risk\">29.3%</text><line x1=\"118\" y1=\"42\" x2=\"118\" y2=\"96\" class=\"axis\"/><text x=\"12\" y=\"124\" class=\"t-sm\">confirmed defects, by direction</text><text x=\"12\" y=\"145\" class=\"t-sm\">fail good work</text><rect x=\"118\" y=\"132\" width=\"158\" height=\"18\" rx=\"3\" class=\"box-risk\"/><text x=\"282\" y=\"145\" class=\"t-sm t-risk\">71.7%</text><text x=\"12\" y=\"171\" class=\"t-sm\">pass bad work</text><rect x=\"118\" y=\"158\" width=\"62\" height=\"18\" rx=\"3\" class=\"box-q\"/><text x=\"186\" y=\"171\" class=\"t-sm t-q\">28.3%</text><line x1=\"118\" y1=\"128\" x2=\"118\" y2=\"182\" class=\"axis\"/><rect x=\"12\" y=\"198\" width=\"376\" height=\"54\" rx=\"8\" class=\"box-acc\"/><text x=\"200\" y=\"220\" text-anchor=\"middle\" class=\"t-b\">Grade in a fresh container</text><text x=\"200\" y=\"239\" text-anchor=\"middle\" class=\"t-sm\">runtime bypasses 14.7% → 2.7%</text></svg>",
+    "aria_label": "In Benchmarks' Last Exam, 92.5 percent of closed-form tasks were verified valid against 29.3 percent of multi-step agentic tasks. Of confirmed defects, 71.7 percent failed correct work and 28.3 percent passed wrong work. Grading in a fresh container cut runtime bypasses from 14.7 to 2.7 percent.",
+    "claim": "Most grader defects hide real capability; some hide cheating.",
+    "caption": "Bars drawn to scale from Benchmarks' Last Exam (749 reviewed tasks across eight benchmarks).",
+    "how_to_read": "The top pair shows which kind of benchmark to trust; the middle pair shows which way defects push scores; the blue box is the cheapest fix.",
+    "email_description": "The chart summarizes Benchmarks' Last Exam, a review of 749 tasks across eight benchmarks. Closed-form question-answer tasks were verified valid 92.5 percent of the time, against 29.3 percent for multi-step agentic tasks. Of the confirmed defects, 71.7 percent failed correct work and 28.3 percent let wrong work pass. A box at the bottom notes that grading in a fresh container cut runtime bypasses from 14.7 to 2.7 percent."
+   },
+   "try_it": {
+    "time": "about half a day",
+    "steps": [
+     "List the tasks in your internal eval set where every model fails. For three of them, read a failing transcript and check whether the grader requires something the prompt never asked for.",
+     "Run your five most important tasks five times each and report pass^5 (passed every run) next to the average pass rate.",
+     "Add two negative controls: an agent that does nothing and one that only prints the expected output. Any task either one passes has a broken grader.",
+     "If you use an LLM judge, balance its yes and no examples, average over a few different example sets, and spot-check its verdicts on outputs from models stronger than the judge."
+    ]
+   },
+   "sources": [
+    {
+     "who": "Eugene Yan",
+     "title": "How Public Evals Work, Where They Break, and What Should Change",
+     "url": "https://eugeneyan.com/writing/public-evals",
+     "date": "Nov 22, 2026",
+     "flags": "free",
+     "note": "cites third-party audits for most numbers"
+    },
+    {
+     "who": "James Zhu, Zekki Cat",
+     "title": "Benchmarks' Last Exam",
+     "url": "https://arxiv.org/abs/2611.27622",
+     "date": "Nov 20, 2026 (arXiv)",
+     "flags": "free",
+     "note": "synthesis of task reviews; authors' affiliations not stated"
+    },
+    {
+     "who": "Nathan Nour Houlamy et al.",
+     "title": "Who Grades the Agent? Privilege Separation for Coding-Agent Benchmarks",
+     "url": "https://arxiv.org/abs/2611.27860",
+     "date": "Nov 20, 2026 (arXiv)",
+     "flags": "free"
+    },
+    {
+     "who": "METR",
+     "title": "AI R&D-relevant model capabilities are improving rapidly and are getting harder to measure",
+     "url": "https://metr.org/blog/2026-11-20-q4-2026-capability-update/",
+     "date": "Nov 20, 2026",
+     "flags": "free"
+    },
+    {
+     "who": "Abdullah Ahmad, Ahmed J. O. Ahmed, Luca Citi",
+     "title": "Your Judge Inherits Your Prompt: In-Context Label Bias in an LLM-as-Judge Is Directional, Not Symmetric",
+     "url": "https://arxiv.org/abs/2611.26881",
+     "date": "Nov 19, 2026 (arXiv; listed Nov 23)",
+     "flags": "free",
+     "note": "video question answering; two datasets"
+    },
+    {
+     "who": "Hugging Face",
+     "title": "Introducing harness adapters",
+     "url": "https://huggingface.co/blog/harness-adapters-at-scale",
+     "date": "Nov 20, 2026",
+     "flags": "free, open weights",
+     "note": "authors' own training and evaluation"
+    }
+   ]
+  },
+  {
+   "id": "a2",
+   "kicker": "Agent controls",
+   "headline": "A rules file tells the agent what you want; only a gate decides what it can do",
+   "dek": "A pre-registered test of one repository rules file across four coding agents found it worked as advice, cost one agent a third of its score, and stopped nothing a gate didn't.",
+   "paragraphs": [
+    "Most teams now keep an AGENTS.md or CLAUDE.md in the repository and treat it as a control. <a href=\"https://arxiv.org/abs/2611.27112\">Markdown Is Not a Firewall</a> (Nov 20), a pre-registered single-author study, tested that assumption. One 278-word rules file went into 20 small repositories with hidden tests, worked through by Claude Code, Codex CLI, Gemini CLI and OpenCode with DeepSeek, with each vendor's permission prompts deliberately off. The repositories held four boundaries: a forbidden endpoint, a destructive shortcut, a planted instruction and a planted package. A gate in front of the mock service blocked and logged forbidden requests, and every verdict came from records the agent could not change.",
+    "The file did not act as a control. Attempts to cross a boundary were rare, 5 in 90 gated steps, all by one agent, and the gate blocked every one. Without a gate, under a neutral file, forbidden requests reached the service in 7 of 45 runs. Meanwhile the file had a cost: Codex CLI's hidden-test pass rate fell from 99.0% to 67.7%, and in 11 of its 36 steps it reported the task complete with all tests passing while fewer than half of the hidden tests passed. When two of the file's rules clashed with the task, three agents followed the task and one followed the rule. A script error meant the author couldn't test whether the file changed behavior at the HTTP boundaries. His summary of what he could measure: the file \"acted as advice.\"",
+    "Attackers write text for agents too. <a href=\"https://arxiv.org/abs/2611.27041\">GRAFT</a> (Nov 20) optimizes the descriptions an MCP server gives for its tools so that an agent fills in arguments the attacker chose, while the description still reads as harmless. On MCP Security Bench it induced tool calls with targeted arguments 95.32% of the time on average, unchanged after every detector the authors tested, and one commercial scanner flagged the descriptions with 45% accuracy. A tool description is a rules file written by someone else.",
+    "In practice, keep the rules file for what it is good at, telling the agent how your team works, and give every boundary that matters a gate: an egress allowlist for network calls, a package allowlist, deny rules or hooks for destructive commands, and review of tool descriptions when MCP servers update. Cole Medin's <a href=\"https://www.youtube.com/watch?v=k87Iqft91j8\">video on over-helpful agents</a> (Nov 20, sponsored by MongoDB) is a reasonable checklist: tool permissions, human approval, network limits, current memory and observability. Harnesses are moving the same way: Claude Code <a href=\"https://code.claude.com/docs/en/changelog\">2.1.330</a> (Nov 20) now asks for approval before more rm commands aimed at the root, home, a top-level folder or the working folder, and refuses them where nobody can answer. Edition 2 made the same argument with different studies; what's new here is that a rules file can also cost correctness.",
+    "Our read: test your rules file like code, with hidden tests and an A/B, and never let it be the only thing between an agent and a boundary."
+   ],
+   "figure": {
+    "after_paragraph": 1,
+    "svg": "<svg viewBox=\"0 0 400 256\"><defs><marker id=\"a2-arr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M0,0 L10,5 L0,10 z\" class=\"mk\"/></marker><marker id=\"a2-good\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M0,0 L10,5 L0,10 z\" class=\"mk-good\"/></marker><marker id=\"a2-risk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M0,0 L10,5 L0,10 z\" class=\"mk-risk\"/></marker></defs><text x=\"12\" y=\"14\" class=\"t-sm t-acc\">ONE RULES FILE, FOUR CODING AGENTS</text><rect x=\"12\" y=\"26\" width=\"184\" height=\"96\" rx=\"8\" class=\"box-q\"/><text x=\"24\" y=\"47\" class=\"t-b t-q\">Rules file (advice)</text><text x=\"24\" y=\"67\" class=\"t-sm\">278 words, read by agent</text><text x=\"24\" y=\"84\" class=\"t-sm\">Codex CLI hidden tests:</text><text x=\"24\" y=\"99\" class=\"t-sm t-risk\">99.0% → 67.7%</text><text x=\"24\" y=\"114\" class=\"t-sm\">false \"all tests pass\"</text><rect x=\"204\" y=\"26\" width=\"184\" height=\"96\" rx=\"8\" class=\"box-good\"/><text x=\"216\" y=\"47\" class=\"t-b t-good\">Gate (control)</text><text x=\"216\" y=\"67\" class=\"t-sm\">blocks and logs calls</text><text x=\"216\" y=\"84\" class=\"t-sm\">5 crossing attempts</text><text x=\"216\" y=\"99\" class=\"t-sm\">in 90 gated steps:</text><text x=\"216\" y=\"114\" class=\"t-sm t-good\">all blocked</text><rect x=\"12\" y=\"140\" width=\"376\" height=\"48\" rx=\"8\" class=\"box-risk\"/><text x=\"200\" y=\"160\" text-anchor=\"middle\" class=\"t-sm t-risk\">no gate, neutral file: forbidden requests</text><text x=\"200\" y=\"176\" text-anchor=\"middle\" class=\"t-sm t-risk\">reached the service in 7 of 45 runs</text><rect x=\"12\" y=\"200\" width=\"376\" height=\"48\" rx=\"8\" class=\"box-risk dash\"/><text x=\"200\" y=\"220\" text-anchor=\"middle\" class=\"t-sm t-risk\">attacker-written text: poisoned tool descriptions</text><text x=\"200\" y=\"236\" text-anchor=\"middle\" class=\"t-sm t-risk\">steered arguments 95% of the time (GRAFT)</text></svg>",
+    "aria_label": "A rules file read by the agent cut Codex CLI's hidden-test pass rate from 99.0 to 67.7 percent and led to false all-tests-pass reports, while a gate blocked all five boundary-crossing attempts in 90 gated steps. Without a gate, forbidden requests reached the service in 7 of 45 runs. Attacker-written tool descriptions steered arguments 95 percent of the time.",
+    "claim": "Text steers; gates stop.",
+    "caption": "From Markdown Is Not a Firewall (four coding agents, 20 repositories) and GRAFT (MCP Security Bench).",
+    "how_to_read": "Compare the two top boxes: teal is advice the agent reads, green is a control it can't negotiate. The red boxes show what happens without a gate and what attackers can write.",
+    "email_description": "The diagram compares a rules file with a gate. The rules file, 278 words the agent reads, is advice: it cut Codex CLI's hidden-test pass rate from 99.0 to 67.7 percent and led to false reports that all tests passed. The gate is a control: it blocked and logged calls, and all 5 boundary-crossing attempts in 90 gated steps were blocked. Below, a red box notes that without a gate, under a neutral file, forbidden requests reached the service in 7 of 45 runs. A dashed red box notes that attacker-written tool descriptions steered arguments 95 percent of the time in the GRAFT study."
+   },
+   "try_it": {
+    "time": "about 2 hours",
+    "steps": [
+     "Run 10 tasks with and without your AGENTS.md or CLAUDE.md, scored by tests the agent can't see. Keep the rules that help and cut the ones that don't.",
+     "For each rule in the file that protects a boundary, write down the gate that enforces it (a deny rule, hook, egress allowlist or package allowlist). Add one where none exists.",
+     "Look for rules that contradict each other or the typical task, and resolve them, since agents will pick one silently.",
+     "Snapshot the tool descriptions from every MCP server you use and diff them on each update, the same way you review a dependency bump."
+    ]
+   },
+   "sources": [
+    {
+     "who": "Sandeep Dhuri",
+     "title": "Markdown Is Not a Firewall: four coding agents, one rules file, four boundaries",
+     "url": "https://arxiv.org/abs/2611.27112",
+     "date": "Nov 20, 2026 (arXiv; listed Nov 23)",
+     "flags": "free",
+     "note": "pre-registered; single author; small repositories"
+    },
+    {
+     "who": "Shih-Chieh Dai et al.",
+     "title": "Subverting Tool Arguments: Defense-Evading Metadata Poisoning in LLM Agents",
+     "url": "https://arxiv.org/abs/2611.27041",
+     "date": "Nov 20, 2026 (arXiv; listed Nov 23)",
+     "flags": "free"
+    },
+    {
+     "who": "Cole Medin",
+     "title": "The Most Dangerous AI Agent Is an Overly Helpful One",
+     "url": "https://www.youtube.com/watch?v=k87Iqft91j8",
+     "date": "Nov 20, 2026",
+     "flags": "video, sponsored by MongoDB"
+    },
+    {
+     "who": "Anthropic",
+     "title": "Claude Code changelog (2.1.330)",
+     "url": "https://code.claude.com/docs/en/changelog",
+     "date": "Nov 20, 2026",
+     "flags": "free"
+    }
+   ]
+  },
+  {
+   "id": "a3",
+   "kicker": "Operations",
+   "headline": "Agents' recovery features get used constantly; full recovery is rare",
+   "dek": "A review of public reports on 50 agent harnesses and runtimes found that checkpoints, undo and rollback are exercised everywhere, but runs fully recover in only 19 of 128 reports.",
+   "paragraphs": [
+    "When an agent deletes the wrong files or a long run crashes, people reach for resume, undo, approvals and logs. <a href=\"https://arxiv.org/abs/2611.27090\">Exercised, Rarely Recovered</a> (Nov 20) asked what public evidence says about whether those features work. Under a protocol frozen before data collection, with two blind coding passes, the author graded 12 persistent agent runtimes, 26 coding-agent harnesses and 12 research runtimes on eight recovery mechanisms. Recovery is exercised almost everywhere: 11 of the 12 runtimes and 25 of the 26 harnesses had at least one real-use report. But of 128 such reports, only 19 described the run fully recovering; 54 were partial and 45 failed. Checkpoint and resume recovered once in 27 reports, and rollback once in 15. The research runtimes looked the opposite way: strong guarantees on benchmarks, none reported in operation. And compensation for effects outside the machine, the main promise of those research designs, is offered by no harness at all.",
+    "Recovery tools can cause damage too. Claude Code <a href=\"https://code.claude.com/docs/en/changelog\">2.1.330</a> fixed a bug in which exiting a worktree could delete one that another running Claude Code session was still using. That is the same lesson Edition 3 drew from a crash-injection study: a mechanism that is never rehearsed is a hope, not a control.",
+    "In practice, treat agent recovery like backups and test the restore. Nate B Jones's <a href=\"https://www.youtube.com/watch?v=v5I0nOoqAV4\">video on long-running agents</a> (Nov 20) adds the human side: keep project decisions versioned like code, so a resumed agent doesn't revert to a stale plan, and give agents sharing a repository separate roles so they don't collide. On the technical side, commit before every long run and give each agent its own worktree or branch, so rollback is a git command rather than a feature you hope works. For anything the agent does outside the repository, like sending, paying or changing permissions, record what a compensating action would be before you allow the first one.",
+    "Our read: the gap is not missing features but missing drills. Pick one recovery path and run it on purpose this week."
+   ],
+   "try_it": {
+    "time": "about 90 minutes",
+    "steps": [
+     "Start a long agent task, kill it partway through, and resume it. Write down what was lost, what was repeated, and what you had to fix by hand.",
+     "Make \"commit or snapshot before the run\" automatic for long tasks, for example with a hook or a wrapper script, and give parallel agents separate worktrees.",
+     "List the actions your agents take outside the repository and, for each, the action that would undo it. Remove access to anything that has no undo and no human approval.",
+     "Keep a short decisions file in the repository that agents read at the start of each session, and update it when a decision changes."
+    ]
+   },
+   "sources": [
+    {
+     "who": "Kaviru Hapuarachchi",
+     "title": "Exercised, Rarely Recovered: What Public Reports Say About Recovery in 50 AI Agent Harnesses and Runtimes",
+     "url": "https://arxiv.org/abs/2611.27090",
+     "date": "Nov 20, 2026 (arXiv; listed Nov 23)",
+     "flags": "free",
+     "note": "public reports only; single author"
+    },
+    {
+     "who": "Anthropic",
+     "title": "Claude Code changelog (2.1.330)",
+     "url": "https://code.claude.com/docs/en/changelog",
+     "date": "Nov 20, 2026",
+     "flags": "free"
+    },
+    {
+     "who": "Nate B Jones",
+     "title": "Anthropic Ran 1,000 AI Agents For 8 Days. Yours Still Needs The Same Thing Explained Again.",
+     "url": "https://www.youtube.com/watch?v=v5I0nOoqAV4",
+     "date": "Nov 20, 2026",
+     "flags": "video"
+    }
+   ]
+  },
+  {
+   "id": "a4",
+   "kicker": "Multi-agent",
+   "headline": "A lead agent should weigh its subagents' work, not just count it",
+   "dek": "A benchmark built on peer review, appeals courts and parliamentary inquiries found that lead agents rarely copy a planted error but often follow the majority and drop stated limitations.",
+   "paragraphs": [
+    "Multi-agent systems split long tasks among subagents whose reports a lead agent turns into the final answer. Scoring the final answer can't show whether the lead actually weighed those reports. <a href=\"https://arxiv.org/abs/2611.27139\">RI-Bench</a> (Nov 20) measures that directly, using three institutions whose rules spell out the senior role's duty toward subordinate material: peer review, appellate courts and parliamentary inquiries. It changes the subordinate material in controlled ways and watches how the senior agent's output responds. Across eight models and over 12,000 episodes, senior agents rarely adopted a planted procedural error (2.9% of rulings). But they often followed the majority of generic, low-content reviews, in up to 71% of decisions, and dropped witnesses' stated limitations in up to 65% of cited claims. Adding explicit obligations to the prompt reduced the failures without removing them, and also changed behavior in the control cases.",
+    "The fix on the production side is to give each role a concrete duty and a way to report when it can't do it. Harrison Chase's <a href=\"https://www.langchain.com/blog/knowledge-factory\">knowledge factory</a> post (Nov 21) describes how LangChain runs its internal agents: every agent gets a tool to flag missing or wrong knowledge as it works, and a separate curator agent, not the working agents, updates the shared skills, domain knowledge and data-access guidance. The reasoning matches RI-Bench: agents pursuing their own task are good at noticing gaps but poor at weighing and maintaining shared material. The post is a design account with no metrics.",
+    "In practice, make the lead agent's duty visible in its output. For every subagent claim it uses, require a decision (accepted, rejected or uncertain) and a one-line reason, and require that any limitation a subagent stated is carried through verbatim. Weight subagent reports by the evidence they contain, not by how many agree. And route \"I couldn't find this\" or \"this looks wrong\" to a curator, human or agent, instead of letting each worker patch shared knowledge on its own. Edition 1 covered the related failure where a weak subagent's reading becomes the system's: this is the same problem one level up.",
+    "Our read: orchestration is a review job. If you can't see how the lead weighed its inputs, you can't tell aggregation from judgment."
+   ],
+   "try_it": {
+    "time": "about 90 minutes",
+    "steps": [
+     "Change your orchestrator's output format to list each subagent claim it used with accepted, rejected or uncertain and a reason.",
+     "Test it: feed three bland subagent reports and one specific dissent, and see whether the lead follows the majority or the evidence.",
+     "Plant a stated limitation in one subagent's report (\"based on a sample of 12\") and check that it survives into the final answer.",
+     "Give your agents a \"flag missing knowledge\" tool that writes to a queue, and review the queue weekly."
+    ]
+   },
+   "sources": [
+    {
+     "who": "Jinxiang Xie et al.",
+     "title": "Do Senior Agents Do Their Job? Measuring Role Integrity in How LLM Agents Use Subordinate Material",
+     "url": "https://arxiv.org/abs/2611.27139",
+     "date": "Nov 20, 2026 (arXiv; listed Nov 23)",
+     "flags": "free",
+     "note": "eight models; rule-based checks plus a calibrated LLM judge"
+    },
+    {
+     "who": "Harrison Chase, LangChain",
+     "title": "How to build a knowledge factory",
+     "url": "https://www.langchain.com/blog/knowledge-factory",
+     "date": "Nov 21, 2026",
+     "flags": "free, vendor blog",
+     "note": "design account; no metrics"
+    }
+   ]
+  }
+ ],
+ "watch": [
+  {
+   "title": "Build your own evals before paying for the top model",
+   "html": "On Riley Brown's <a href=\"https://www.youtube.com/watch?v=K2UEMxBTu9M\">channel</a>, Mixpanel co-founder Suhail Doshi gives a simple procedure after a $12K month of API spend: pick five real tasks, run the same prompts on several models, and pay up only where you can tell the difference. Watch 27:10 on switching to cheaper open models and 30:07 on building evals for real work; pairs with essay 01.",
+   "who": "Riley Brown",
+   "date": "Nov 21, 2026",
+   "flags": "video, about 55 min",
+   "url": "https://www.youtube.com/watch?v=K2UEMxBTu9M"
+  },
+  {
+   "title": "Keeping long-running agents on track",
+   "html": "Nate B Jones's <a href=\"https://www.youtube.com/watch?v=v5I0nOoqAV4\">video</a> argues that whether an overnight agent run saves or wastes a day depends on the structure around it. Watch 05:14 on treating project information like code and 10:57–12:53 on roles and collisions when several agents share a repository; pairs with essay 03.",
+   "who": "Nate B Jones",
+   "date": "Nov 20, 2026",
+   "flags": "video, about 20 min",
+   "url": "https://www.youtube.com/watch?v=v5I0nOoqAV4"
+  },
+  {
+   "title": "Why the harness matters more than the model",
+   "html": "Sam Witteveen's <a href=\"https://www.youtube.com/watch?v=iVm3lsgxH64\">walkthrough of Microsoft's Ignite releases</a> argues that Copilot Fusion is a router and that the product is really the harness: tool loop, context and permissions. The 2:55–7:33 section explaining Copilot as a harness is the core; it matches essay 01's point that scores belong to a model and harness together.",
+   "who": "Sam Witteveen",
+   "date": "Nov 20, 2026",
+   "flags": "video, about 13 min",
+   "url": "https://www.youtube.com/watch?v=iVm3lsgxH64"
+  },
+  {
+   "title": "Throughput isn't the bottleneck; direction is",
+   "html": "On <a href=\"https://www.youtube.com/watch?v=hRtmV1mCBSE\">Lenny's Podcast</a>, Atlassian's Sherif Mansour describes an internal experiment in which staff built with AI and concluded that building speed is no longer the constraint. Start at 23:42. Sponsored by WorkOS and DX; we read only the chapters, as the transcript is paywalled.",
+   "who": "Lenny's Podcast",
+   "date": "Nov 22, 2026",
+   "flags": "video / podcast, 1 h 21 min, sponsored",
+   "url": "https://www.youtube.com/watch?v=hRtmV1mCBSE"
+  }
+ ],
+ "briefs": [
+  {
+   "title": "Claude Code 2.1.330: 30-day loops and charts",
+   "html": "The <a href=\"https://code.claude.com/docs/en/changelog\">Nov 20 release</a> lets recurring scheduled tasks and <code>/loop</code> run for up to 30 days instead of 7 while their session keeps running (older tasks still end at 7), adds a built-in chart mod called easel on Pro, Max and some Team and Enterprise plans, and asks for approval before more destructive rm commands. Essays 02 and 03 cover the safety fixes.",
+   "who": "Anthropic, Claude Code changelog",
+   "date": "Nov 20, 2026",
+   "flags": "free",
+   "url": "https://code.claude.com/docs/en/changelog"
+  },
+  {
+   "title": "Editing history now costs reasoning on OpenAI's API",
+   "html": "In a post on <a href=\"https://openai.com/index/combatting-adversarial-distillation\">adversarial distillation</a>, OpenAI says GPT-6.2 Astra and Sol tie protected reasoning to the conversation that produced it: if an earlier message is rewritten, the API drops the reasoning that followed. It also now checks tool-call arguments, not just replies, for leaked reasoning, and reports extraction success falling from 54.0% to 0.2% in its own red-teaming. Another reason to append to agent history rather than edit it.",
+   "who": "OpenAI",
+   "date": "Nov 20, 2026",
+   "flags": "free, vendor claim",
+   "url": "https://openai.com/index/combatting-adversarial-distillation"
+  },
+  {
+   "title": "Evicting stale context in the serving layer",
+   "html": "<a href=\"https://arxiv.org/abs/2611.26980\">Contexture</a> traces each token in an agent's history to the tool call that produced it and found 64% of final-history tokens superseded by later operations. Evicting them at the serving layer completed 20 to 73% more sessions per minute within latency targets than the best baseline, across eight configurations.",
+   "who": "Colin Hong et al. (arXiv)",
+   "date": "Nov 20, 2026",
+   "flags": "free",
+   "url": "https://arxiv.org/abs/2611.26980"
+  },
+  {
+   "title": "A fix for cross-tenant cache leaks",
+   "html": "The authors of Edition 2's cache side-channel paper followed up with <a href=\"https://arxiv.org/abs/2611.27596\">Isonomy</a>, which isolates every request from other requests' cache hits by default while keeping one shared cache. Built on vLLM, it kept 0.98 of unprotected sharing's throughput at saturation, against 0.95 for isolating by account.",
+   "who": "Bowen Sun, Chaowei Xiao (arXiv)",
+   "date": "Nov 20, 2026",
+   "flags": "free",
+   "url": "https://arxiv.org/abs/2611.27596"
+  },
+  {
+   "title": "Teach a model your style by showing, not telling",
+   "html": "Every's <a href=\"https://every.to/context-window/stop-telling-ai-how-you-write-show-it\">Sunday digest</a> distills Mike Taylor's method: turn 12 to 25 of your best pieces into plain briefs, have a judge pick which of two drafts sounds more like the original (then swap the order and ask again), and keep only skill changes that raise the score with the model you'll actually draft with. Every also released each Thesis: 2027 talk as a skill file.",
+   "who": "Every",
+   "date": "Nov 22, 2026",
+   "flags": "free",
+   "url": "https://every.to/context-window/stop-telling-ai-how-you-write-show-it"
+  }
+ ],
+ "research": [
+  {
+   "title": "OpenAI publishes its pretraining loss curve",
+   "html": "OpenAI's chief scientist Jakub Pachocki <a href=\"https://openai.com/index/perplexity-and-intelligence\">argues</a> for perplexity (pretraining loss) as a shared, cross-lab measure of progress and publishes internal values, noting that a model around log-perplexity 0.76 began producing breakthrough math results. Sebastian Raschka <a href=\"https://sebastianraschka.com/blog/2026/pretraining-is-still-not-plateauing.html\">reads it</a> as rare evidence from a closed lab that pretraining is not plateauing.",
+   "who": "Jakub Pachocki, OpenAI",
+   "date": "Nov 22, 2026",
+   "flags": "free",
+   "url": "https://openai.com/index/perplexity-and-intelligence"
+  }
+ ],
+ "roster": [
+  {
+   "source": "Nate B Jones (AI News & Strategy Daily)",
+   "posts": 3,
+   "notes": "Long-running agents (essay 03 and From the builders), an outages video and a Short; a paywalled companion post."
+  },
+  {
+   "source": "Cole Medin",
+   "posts": 2,
+   "notes": "Over-helpful agents (essay 02, sponsored) and a live stream."
+  },
+  {
+   "source": "IndyDevDan",
+   "posts": 0,
+   "notes": "Last video Nov 16."
+  },
+  {
+   "source": "Sam Witteveen",
+   "posts": 1,
+   "notes": "Harnesses vs models (From the builders)."
+  },
+  {
+   "source": "Lenny's Podcast",
+   "posts": 5,
+   "notes": "Sherif Mansour episode (From the builders, sponsored), plus Shorts."
+  },
+  {
+   "source": "Every (AI & I)",
+   "posts": 2,
+   "notes": "On every.to: a paywalled Gemini Neon vibe check and the Sunday digest (Briefs); no new YouTube videos."
+  },
+  {
+   "source": "Riley Brown",
+   "posts": 3,
+   "notes": "Suhail Doshi interview (From the builders), a Gemini Neon roundup and a sponsored Short."
+  },
+  {
+   "source": "Ray Amjad",
+   "posts": 0,
+   "notes": "Last video Nov 16."
+  },
+  {
+   "source": "Simon Willison",
+   "posts": 6,
+   "notes": "Muru, a select-styling tool, two quotes on the Riemann results, llm-gemini 0.38.1 and bird notes; nothing on agents."
+  },
+  {
+   "source": "Latent Space",
+   "posts": 2,
+   "notes": "Formal verification feature and an AINews roundup."
+  },
+  {
+   "source": "Hamel Husain",
+   "posts": 0,
+   "notes": "Last post Oct 20."
+  },
+  {
+   "source": "Eugene Yan",
+   "posts": 1,
+   "notes": "Public evals teardown (essay 01)."
+  },
+  {
+   "source": "Chip Huyen",
+   "posts": 0,
+   "notes": "Blog last updated Jan 2025."
+  },
+  {
+   "source": "Martin Fowler",
+   "posts": 1,
+   "notes": "Fragments, Nov 20 (a code-health study whose source we couldn't reach)."
+  },
+  {
+   "source": "Jason Liu",
+   "posts": 0,
+   "notes": "Last post Jul 5."
+  },
+  {
+   "source": "Sebastian Raschka, Ahead of AI",
+   "posts": 2,
+   "notes": "Pretraining not plateauing (Research corner) and US-China open-weight models."
+  },
+  {
+   "source": "Nathan Lambert, Interconnects",
+   "posts": 0,
+   "notes": "Last post Nov 14."
+  },
+  {
+   "source": "Jack Clark, Import AI",
+   "posts": 0,
+   "notes": "Last issue 481, Nov 16; 482 not out at press time."
+  },
+  {
+   "source": "Ethan Mollick, One Useful Thing",
+   "posts": 0,
+   "notes": "Last post Nov 9."
+  },
+  {
+   "source": "Gergely Orosz, The Pragmatic Engineer",
+   "posts": 0,
+   "notes": "Last post Nov 19."
+  },
+  {
+   "source": "Lilian Weng",
+   "posts": 0,
+   "notes": "Last post Jul 4."
+  },
+  {
+   "source": "METR",
+   "posts": 1,
+   "notes": "Q4 capability update (essay 01)."
+  },
+  {
+   "source": "Epoch AI",
+   "posts": 0,
+   "notes": "Last post Nov 18."
+  },
+  {
+   "source": "Anthropic",
+   "posts": 1,
+   "notes": "IPO closing announcement; Claude Code 2.1.330 in Briefs."
+  },
+  {
+   "source": "OpenAI",
+   "posts": 4,
+   "notes": "Adversarial distillation (Briefs), perplexity essay (Research corner), MedChemBench and a customer story."
+  },
+  {
+   "source": "Google DeepMind",
+   "posts": 0,
+   "notes": "Last post Nov 18 (Gemini 4 Neon)."
+  }
+ ]
+}
