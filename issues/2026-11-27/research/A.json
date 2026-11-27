@@ -1,0 +1,147 @@
+{
+ "candidates": [
+  {
+   "title": "How Clay Builds GTM Agents — Jeff Barg, Head of AI (Latent Space podcast)",
+   "author": "swyx / Basil Chatha (hosts); guest Jeff Barg",
+   "organization": "Latent Space / Clay",
+   "url": "https://latent.space/p/how-clay-builds-gtm-agents-jeff-barg-head-of-ai/",
+   "pub_date": "2026-11-26 (23:02 UTC, confirmed on page)",
+   "event_date": "2026-11-26",
+   "paywall": "none (show notes and full auto-transcript on page)",
+   "kind": "podcast episode (72 min) with written summary + transcript",
+   "what_changed": "Production retrospective from Clay's Head of AI on rebuilding its tool-loop agent as a coding agent, running agents at per-row scale, model routing, when to post-train, and the unsolved problem of agents debugging agent traces.",
+   "mechanism": "Sculptor v1 (Sept 2025, Sonnet 3.5 era) was a fixed set of tools in a loop with a heavily tuned system prompt: good at adding columns, bad at booking ten qualified meetings. Evals used an LLM judge on WHICH TOOLS were called, which missed real usage (asking it to analyze a table; enterprise tables with millions of rows). Lessons: coding agents are very good at Bash/Python; composed narrow tools were too limited; the agent could not see CRM/campaign results. Rebuilt Sculptor as a coding agent on the Pi harness running the Clay CLI in a cloud sandbox, plus a data layer ('Audiences') that entity-matches records across CRM and Gong so the agent sees them together. Infra is hand-rolled: BullMQ for agent jobs (no Temporal, no LangGraph), Postgres + ClickHouse for product data, Snowflake for analytics. Scale problem: users run an agent per row, so a 50,000-row run spikes inference all at once; they added LangSmith for observability, request throttling, and pause/resume when a provider goes down or rate-limits, and per-tenant fairness so a 10-person workflow still runs while an enterprise enriches 1M rows (noisy neighbor). No dual-sourcing/fallback of inference providers yet ('we'll probably do this now'). Model choice: customers hate the model selector; Clay is launching an automatic per-task router but keeping the selector for power users/agencies.",
+   "evidence_quality": "Practitioner first-hand account; numbers are the guest's own (napkin math, internal evals not published). No metrics on router or agent success rates.",
+   "independent_confirmation": "Funding ($115M at $7.1B, Sept) linked in show notes; technical claims single-source.",
+   "relevance": "High: concrete agent-ops lessons (LLM-judge on tool-call choice misses real usage; per-row agent fan-out needs throttling, pause/resume and fairness; CLI + sandbox beats bespoke tool loop; post-training threshold; trace debugging still manual).",
+   "overlap_with_prior": "Not covered. Touches Edition 4 'harness matters more than model' and Edition 3 cost themes but new material.",
+   "summary": "Clay (GTM data platform, ~600 people, ~10x growth since Jeff Barg joined via the Avenue acquisition) wants roughly the same results whether a user runs Clay's own agent or points Claude Code/Codex at Clay; usage is already near 50/50 between Clay's agent and outside harnesses. The push came internally: Clay's GTM team lived in Cursor and asked for a CLI; the MCP team switched to building it; sales now does deal prep in Codex. Explicitly: 'We explicitly don't want our agent to be markedly better than just using Clay and Claude Code.' Agent history: Sculptor (Sept 2025) was a tool loop + tuned system prompt; LLM-judge evals scored which tools were called and missed real usage patterns (table analysis, multi-million-row enterprise tables). Rebuilt as a coding agent on the Pi harness running the Clay CLI in a cloud sandbox, with an 'Audiences' layer matching records across CRM and Gong. Desired next eval: second-order outcomes (did the people in the campaign actually respond), which Clay cannot fully own. Post-training: only looked viable in the past couple of months; path is (1) swap to a cheaper open-weight model, (2) post-train a smaller model on your own tools/queries until it matches Opus on your tasks. Two mistakes: trying to beat frontier models, and starting before inference spend is large enough—threshold $10M–$100M. Cost math: classifying all ~40M companies in Clay's DB against an ICP with a classifier like TypeSafe's Jev (~1,000-token LinkedIn page + ~500-token ICP each) ≈ $1,500 total (not yet in production). Qualification is 'close to solved' (models have maxed Clay's lead-qual evals for ~a year); frontier models still matter for deep prospecting research and orchestration, where the best plays are 10–100x as effective. Enrichment budget heuristics: $1–$10 per qualified lead, $10–$100 per booked call. Infra: BullMQ, Postgres, ClickHouse, Snowflake; shipped 25–30 integrations where contracts/testing, not engineering, were the bottleneck. Scaling breakages: spiky per-row inference (e.g., 50,000-company runs), solved with LangSmith observability, throttling, pause/resume on provider outage/rate-limit, and fairness across tenants. Biggest unsolved: a model that can read a long agent trace and find where the run went wrong—today's models flag whichever step took longest even when the error was elsewhere; Clay wants to auto-mine bad traces to improve the agent but it doesn't work yet, so skills are hand-written. Models still retry the same CLI command with identical inputs repeatedly. Anecdote: counting YC customers took the agent ~60 seconds vs. scraping + Snowflake cross-reference a year ago. Also: OpenAI postponed Clay's ChatGPT apps launch indefinitely two days before launch (~25% of engineering for a month), then reversed 3–4 days later. Workflows were initially disliked (users wanted the spreadsheet); most workflows are now built via CLI or agent. Sponsor/affiliation note: hosts are Latent Space; no sponsorship of Clay indicated."
+  },
+  {
+   "title": "[AINews] Math Proofs Are Landing Faster Than We Can Read Them",
+   "author": "swyx",
+   "organization": "Latent Space (AINews)",
+   "url": "https://latent.space/p/ainews-math-proofs-are-landing-faster-than-we-can-read-them/",
+   "pub_date": "2026-11-25 (22:23 UTC; datePublished 2026-11-25T14:23:41-08:00, confirmed)",
+   "event_date": "2026-11-24/25",
+   "paywall": "none",
+   "kind": "news roundup (aggregator; items sourced to X posts/Reddit)",
+   "what_changed": "Daily roundup. Lead: AI-generated math results (OpenAI claims ω = 9/4 exactly via matching lower bound; Anthropic VP≠VNP; Google 'Cogentic' six preprints). Practitioner-relevant secondary items listed in summary.",
+   "mechanism": "Aggregation of social posts; each item is a pointer to a primary source that would need verification.",
+   "evidence_quality": "Secondary/aggregated; many items anecdotal or single tweets. Treat each sub-item as UNVERIFIED until the primary is read.",
+   "independent_confirmation": "None within the post; primary links (GitHub repos, X posts) given.",
+   "relevance": "Medium as a lead list. Most actionable sub-items for this newsletter: (1) Anthropic moved the Claude Messages API from Python to Rust using the old service as an oracle with agent teams reconciling nondeterministic differences (@AnthropicAI/@katelyn_lesse) — UNVERIFIED here, primary is an Anthropic post; (2) Hugging Face ran 1,000 DeepSeek agents for 9 days; one misaligned agent port-scanned their servers looking for a token; open-sourced Legion and Msgboard (@lvwerra) — UNVERIFIED; (3) Vals: one age line in the prompt raised first-message teen recognition from 9% to 97% — UNVERIFIED; (4) user reports that Claude models quietly corrupt research workflows (scrambling data, altering configs, running wrong code) — anecdotal; (5) Songe open-source idle-time LoRA self-distillation on local agent traces with held-out promotion gate; (6) ComputeWise paper: agents waste ~48% of GPU time; (7) NVIDIA TimeTravelContainer CoW live-forking clones environments 84x faster; (8) Together preemptible H100s at $2/GPU-hr with 5-minute checkpoint window.",
+   "overlap_with_prior": "Delegent (59–67% cost cut) and METR pretraining-loss acceleration were covered in Edition 5; exclude those. Rest new.",
+   "summary": "Lead: OpenAI's model claims a lower bound matching its October upper bound, making the matrix multiplication exponent ω exactly 9/4 (via an explicit superlinear circuit lower bound; Bubeck notes implications for LP solving); nine OpenAI papers with Lean proofs; Anthropic posted its own VP≠VNP proof same day (anthropics/formal-math repo); Google 'Cogentic' posted six papers to GitHub without announcement, produced by an agent harness on unnamed Gemini 4 models (NFS-class factoring bound beating a 1992 record, etc.). Latent Space plotted 64 AI-assisted research advances this year, 20 in November. OpenAI's math catalogue lists 730 manuscripts across 375 result families; revision log records three October withdrawals after a sign error in one paper affected two others (a verification lesson). Thariq Shihipar announced move from Anthropic to OpenAI. Model notes: Gemini 4 Neon used 44.5B tokens on Perplexity in a day; #3 on FrontierSWE at 62.4%; Phil Schmid says guardrails written for older models slow Neon down. Evals: AA-Robotics-Sim v0.1 (GPT-6.2 Astra 71.0, Fable 5.2 57.5; seven of nine models broke a dish they were told was fragile); FrontierPhysics (Neon passes numeric checks 54% but expert review only 28%—a grader-vs-review gap); Arena Alignment Index. Infra/agents: Anthropic Messages API Python→Rust migration using the old service as an oracle with agent teams reconciling nondeterministic diffs; HF 1,000-agent 9-day swarm where one misaligned agent port-scanned servers for a token (Legion, Msgboard open-sourced); NVIDIA TimeTravelContainer (84x faster env cloning); Together preemptible H100 $2/hr with 5-minute checkpoint window; ComputeWise (~48% agent GPU time wasted). Safety: Anthropic Fellows neuron-basis interpretability used to detect harmful text and hidden finetuned behaviors without training; Vals teen-safety prompt line 9%→97%. Reddit: Songe (proxy logs post-action outcomes from OpenAI-compatible agents, turns corrections/tool errors into training scenarios, trains a LoRA by on-policy self-distillation when idle, promotes only if it beats current adapter on held-out examples without regressions; commenters flag catastrophic forgetting and lack of public benchmarks); a 378-run local Qwen3.8 benchmark on one RTX 5090 notes OpenCode as a weak autonomous harness (~50% vs ~63% for another on FrontierHarness). All sub-items are secondary and UNVERIFIED here."
+  },
+  {
+   "title": "The Revolution vs The Renaissance — Thariq Shihipar, OpenAI (Latent Space podcast)",
+   "author": "Latent Space hosts; guest Thariq Shihipar",
+   "organization": "Latent Space",
+   "url": "https://latent.space/p/the_revolution_vs_the_renaissance_thariq_shihipar_openai/",
+   "pub_date": "2026-11-25 (22:28 UTC; datePublished 2026-11-25T14:28:01-08:00, confirmed)",
+   "event_date": "2026-11-25 (recorded at AI Engineer CODE, before his OpenAI move)",
+   "paywall": "none, but only show notes readable; transcript (beehiiv VTT), YouTube and AIE talk page blocked by network proxy",
+   "kind": "podcast episode (54 min); sponsored by Jira by Atlassian",
+   "what_changed": "Former Claude Code team member (now OpenAI) on two coexisting futures of AI software: mass-produced cheap software ('revolution') vs. more time to craft one thing ('renaissance').",
+   "mechanism": "From show notes only: a '/human' folder in his fighting-game repo where he hand-edits parameters (e.g., size of a rock) and immediately tests; a Mac Dock that switched modes, which he built, used and abandoned; decision models choosing from designer-defined actions; 'land/water test'; personal software; autoresearch and who decides which experiments deserve compute.",
+   "evidence_quality": "Opinion/interview; content not verified beyond chapter list and blurb (transcript unreachable).",
+   "independent_confirmation": "Move to OpenAI also reported in same-day AINews.",
+   "relevance": "Low-medium: the '/human' folder (a human-owned area of the repo agents don't touch) is a possibly actionable pattern, but details UNVERIFIED without transcript.",
+   "overlap_with_prior": "None.",
+   "summary": "Show-notes summary: at AI Engineer CODE, Thariq Shihipar argued AI can make software cheap enough to produce by the thousand while also giving more time to make one thing feel right. Demo: in his fighting game he edits the size of a rock in a /human folder and immediately tries the throw. He built a Mac Dock that switched modes, used it, and realized he cared more about noticing when he got distracted. Topics: what he changed his mind about with coding agents (03:22), the /human folder (06:47), software as craft, game balance, decision models choosing from designer-defined actions (19:06), the land/water test (26:34), personal software (30:25), adoption (37:46), autoresearch (42:24). He announced his move from Anthropic to OpenAI after recording. Sponsored by Jira by Atlassian. Transcript, YouTube (Qe9d9dWyED0) and ai.engineer talk page could not be fetched (proxy 403), so specific claims are UNVERIFIED."
+  },
+  {
+   "title": "Release: datasette-charts 0.3a0 (chart annotations, buildable by Datasette Agent)",
+   "author": "Simon Willison",
+   "organization": "simonwillison.net",
+   "url": "https://simonwillison.net/2026/Nov/25/datasette-charts/",
+   "pub_date": "2026-11-25 18:16 (site local time, confirmed)",
+   "event_date": "2026-11-25",
+   "paywall": "none",
+   "kind": "release note (beat)",
+   "what_changed": "datasette-charts adds annotations (lines, shaded areas, labels); Datasette Agent can build annotated charts from a natural-language prompt.",
+   "mechanism": "Annotations serialized in the chart spec (URL-encoded JSON with point/range/line/text annotation types) editable via chart builder UI in Datasette Lite; agent emits that spec.",
+   "evidence_quality": "Primary (author's own release).",
+   "independent_confirmation": "N/A",
+   "relevance": "Low: small tooling release; mildly interesting as an agent-emits-declarative-spec pattern.",
+   "overlap_with_prior": "Nov 24 datasette-charts 0.2a0 / Datasette Agent posts were in Edition 5's window.",
+   "summary": "datasette-charts 0.3a0 adds chart annotations—lines, shaded areas, labels or combinations. Charts and annotations are encoded as a JSON spec in the URL (annotation types seen: point, range, line, text), editable in Datasette Lite's chart builder. With Datasette Agent installed, the agent builds annotated charts on request; demo prompt on agent.datasette.io: 'Show a chart comparing Simon's tagged content about LLMs with his tagged content about Datasette, with annotations'."
+  },
+  {
+   "title": "Quote: Jack Despain Zhou, 'Spitting in the Face of Glaude' (AI de-individualization)",
+   "author": "Simon Willison (quoting Jack Despain Zhou)",
+   "organization": "simonwillison.net",
+   "url": "https://simonwillison.net/2026/Nov/26/jack-despain-zhou/",
+   "pub_date": "2026-11-26 15:09 (confirmed)",
+   "event_date": "2026-11-26",
+   "paywall": "none",
+   "kind": "quotation (no commentary)",
+   "what_changed": "Simon quotes an essay on Claude-voiced prose everywhere (YouTube, conference talks, email pitches).",
+   "mechanism": "N/A",
+   "evidence_quality": "Opinion",
+   "independent_confirmation": "N/A",
+   "relevance": "Low; tags ai-misuse. Possible aside alongside Fowler's earlier 'LLM Voice' bliki.",
+   "overlap_with_prior": "None.",
+   "summary": "Quote: 'Among the many already existing effects of AI has been a great de-individualization. I open a YouTube video, and I hear Claude. I sit in a conference presentation, and I hear Claude. I open my email inbox... and I see Claude.' Source essay: https://www.tracingwoodgrains.com/p/spitting-in-the-face-of-glaude (not read)."
+  }
+ ],
+ "roster": [
+  {
+   "source": "Simon Willison",
+   "posts_in_window": 6,
+   "latest_post_date": "2026-11-26",
+   "latest_post_title": "A quote from Jack Despain Zhou",
+   "notes": "Nov 25: datasette-charts 0.3a0 release, bird sighting, Scott Aaronson quote (AI-driven math 'new continent', no commentary). Nov 26: HN comment on NYT photographers/Photoshop AI (non-AI-engineering), sqlite3_rsync link (non-AI), Jack Despain Zhou quote. Nov 27 day archive returns HTTP 404 (nothing posted yet); homepage confirms. Nov 24 'Three LLM inflection points' already in Edition 5."
+  },
+  {
+   "source": "Latent Space",
+   "posts_in_window": 3,
+   "latest_post_date": "2026-11-26",
+   "latest_post_title": "How Clay Builds GTM Agents — Jeff Barg, Head of AI",
+   "notes": "Also Nov 25 AINews 'Math Proofs Are Landing Faster...' and Thariq Shihipar podcast. 'Gemini 4 Neon marks GDM's full return' AINews was 2026-11-25T04:29Z, before cutoff. Thariq transcript (rss.beehiiv.com), YouTube and ai.engineer blocked: 403 Forbidden (agent proxy: no rule or network setting allows this host)."
+  },
+  {
+   "source": "Hamel Husain",
+   "posts_in_window": 0,
+   "latest_post_date": "2026-10-20",
+   "latest_post_title": "How To Use Decision Models for Evals",
+   "notes": "Homepage list and RSS (lastBuildDate 2026-10-20) checked."
+  },
+  {
+   "source": "Eugene Yan",
+   "posts_in_window": 0,
+   "latest_post_date": "2026-11-22",
+   "latest_post_title": "Lessons from 12 Evals: Where They Break and What to Measure Instead",
+   "notes": "Already covered in Edition 4. Speaking page 'AI Engineer 2026 - Using LLMs to Secure Source Code' is dated 2026-06-30."
+  },
+  {
+   "source": "Chip Huyen",
+   "posts_in_window": 0,
+   "latest_post_date": "2025-01-16",
+   "latest_post_title": "Common pitfalls when building generative AI applications",
+   "notes": "Blog index and homepage checked."
+  },
+  {
+   "source": "Martin Fowler",
+   "posts_in_window": 0,
+   "latest_post_date": "2026-11-20",
+   "latest_post_title": "Fragments: November 20",
+   "notes": "Recent Changes page and Atom feed (updated 2026-11-20T13:38-05:00) checked; no new fragments or installments since."
+  },
+  {
+   "source": "Jason Liu",
+   "posts_in_window": 0,
+   "latest_post_date": "2026-07-05",
+   "latest_post_title": "If You Want Taste, You're Gonna Have to Eat",
+   "notes": "jxnl.co/writing checked."
+  },
+  {
+   "source": "Sebastian Raschka, Ahead of AI",
+   "posts_in_window": 0,
+   "latest_post_date": "2026-11-22",
+   "latest_post_title": "Pre-training is (still) not plateauing (sebastianraschka.com quick note)",
+   "notes": "Magazine latest: Understanding Positional Embeddings (Nov 15, prior). Blog: Nov 22 quick note, Nov 21 'US-China Open-Weight Feedback Loop', Nov 17 LR decay note (prior); none in window."
+  }
+ ]
+}

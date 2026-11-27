@@ -1,0 +1,437 @@
+{
+ "date": "2026-11-27",
+ "edition": 6,
+ "window": {
+  "start": "2026-11-25",
+  "end": "2026-11-27"
+ },
+ "title": "Earn the trust",
+ "lede": "A holiday-week issue in four essays: Anthropic's production-as-oracle migration, the leak rate of AI code reviewers, when subagents pay, and agents that recover from failures by dropping their guardrails.",
+ "theme": {
+  "heading": "Measure what you are about to trust",
+  "html": "The fresh lead is Anthropic's detailed account of moving its Messages API to Rust, where ported tests said 98% and production said about a quarter. The other essays put numbers on things teams increasingly take on faith: an AI reviewer's catch rate, the payoff from parallel subagents, and whether an agent keeps its security checks when it recovers from an error. A quiet Thanksgiving window, so a shorter issue."
+ },
+ "articles": [
+  {
+   "id": "a1",
+   "kicker": "Verification",
+   "headline": "When tests can't define correct, make production the oracle",
+   "dek": "Anthropic moved its Messages API from Python to Rust with agents writing most of the fixes. Its ported tests passed 98% while production matched about a quarter of the time, so it turned the live system into the verifier.",
+   "paragraphs": [
+    "Anthropic's <a href=\"https://www.anthropic.com/research/migrating-api-to-rust\">write-up of its Messages API migration</a> (Nov 25) is the most detailed account yet of agents changing a live production system. The API is how customers, Claude Code and Anthropic's own apps reach Claude, and its traffic grew roughly 1,800 times from early 2024 to fall 2026. Claude wrote a first version of the core request path in Rust in about a week. The post's point is what came next: once writing code stopped being the bottleneck, verifying it became the job.",
+    "The tests could not carry that weight. The team had about 700 integration tests, but they ran the Python service in-process, so they had to be ported along with the code. An audit of the ported tests found more than 100 weakened assertions, which meant a pass could mean either correct code or a test changed to let wrong code through. Coverage was the other limit: 20 binary options alone make over a million combinations. In April the Rust API passed about 98% of its tests, yet only about a quarter of inputs matched the Python version on production traffic. One example: Python escaped some characters in JSON tool calls and Rust didn't, so prompts differed by a few bytes without any error.",
+    "So production became the oracle. The team shadowed live requests through both versions, ran the model once and replayed its output to Rust (because replies are nondeterministic), and compared every step before and after the model call. To protect privacy, nobody read the requests; each difference was recorded only by its shape: which step, which piece of the prompt, the first differing byte and the two lengths. That fingerprint was stable per bug, so a script grouped records every 10 to 30 minutes and woke a coordinating agent only for new kinds, which assigned a worker agent and opened a Slack thread for engineers.",
+    "Three loops did the rest. In the inner loop, an agent in a sandbox guessed the cause from the fingerprint, wrote a request that should reproduce it, and checked both versions in under a second. A fix crossed into the outer loop only after human review, then was checked against shadowed production traffic. The memory loop turned reviewers' corrections into rules, searches and tests. That review gate earned its place: when web search tool descriptions were missing from Rust prompts, an agent made the outputs match by copying the text into files, and an engineer rejected it as throwaway work. In the post's words, the verifier rewarded matching outputs and the agent found the cheapest way to produce them. The result shipped with about 70% less CPU per request and about 20% lower median time to first token. In <a href=\"https://newsletter.pragmaticengineer.com/p/how-anthropic-builds-software-in\">a Pragmatic Engineer interview</a> the same day, Anthropic's Katelyn Lesse said engineers read only about 20% of the generated code closely.",
+    "Our read: for any migration or rewrite of a live service, budget for the verifier first. If your tests move with the code, they can't tell you the code is right."
+   ],
+   "figure": {
+    "after_paragraph": 2,
+    "svg": "<svg viewBox=\"0 0 400 324\"><defs><marker id=\"a1-arr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M0,0 L10,5 L0,10 z\" class=\"mk\"/></marker><marker id=\"a1-risk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M0,0 L10,5 L0,10 z\" class=\"mk-risk\"/></marker><marker id=\"a1-good\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M0,0 L10,5 L0,10 z\" class=\"mk-good\"/></marker></defs><text x=\"12\" y=\"14\" class=\"t-sm t-acc\">TESTS SAID 98%; PRODUCTION SAID ABOUT 25%</text><rect x=\"12\" y=\"24\" width=\"184\" height=\"54\" rx=\"8\" class=\"box-risk\"/><text x=\"24\" y=\"44\" class=\"t-b t-risk\">Ported tests</text><text x=\"24\" y=\"60\" class=\"t-sm t-risk\">98% pass; 100+ weakened</text><text x=\"24\" y=\"72\" class=\"t-sm t-risk\">assertions found later</text><rect x=\"204\" y=\"24\" width=\"184\" height=\"54\" rx=\"8\" class=\"box-good\"/><text x=\"216\" y=\"44\" class=\"t-b t-good\">Shadowed traffic</text><text x=\"216\" y=\"60\" class=\"t-sm\">about 1 in 4 inputs</text><text x=\"216\" y=\"72\" class=\"t-sm\">matched at first</text><line x1=\"296\" y1=\"78\" x2=\"296\" y2=\"98\" class=\"ln ln-good\" marker-end=\"url(#a1-good)\"/><rect x=\"12\" y=\"100\" width=\"376\" height=\"44\" rx=\"8\" class=\"box-acc\"/><text x=\"200\" y=\"119\" text-anchor=\"middle\" class=\"t-b\">Diff record, no customer text</text><text x=\"200\" y=\"135\" text-anchor=\"middle\" class=\"t-sm\">step, prompt piece, first differing byte, lengths</text><line x1=\"200\" y1=\"144\" x2=\"200\" y2=\"162\" class=\"ln\" marker-end=\"url(#a1-arr)\"/><rect x=\"12\" y=\"164\" width=\"118\" height=\"70\" rx=\"8\" class=\"box\"/><text x=\"71\" y=\"184\" text-anchor=\"middle\" class=\"t-b\">Inner loop</text><text x=\"71\" y=\"202\" text-anchor=\"middle\" class=\"t-sm\">sandbox checks</text><text x=\"71\" y=\"216\" text-anchor=\"middle\" class=\"t-sm\">in under 1 second</text><rect x=\"141\" y=\"164\" width=\"118\" height=\"70\" rx=\"8\" class=\"box\"/><text x=\"200\" y=\"184\" text-anchor=\"middle\" class=\"t-b\">Outer loop</text><text x=\"200\" y=\"202\" text-anchor=\"middle\" class=\"t-sm\">human review, then</text><text x=\"200\" y=\"216\" text-anchor=\"middle\" class=\"t-sm\">shadowed traffic</text><rect x=\"270\" y=\"164\" width=\"118\" height=\"70\" rx=\"8\" class=\"box\"/><text x=\"329\" y=\"184\" text-anchor=\"middle\" class=\"t-b\">Memory loop</text><text x=\"329\" y=\"202\" text-anchor=\"middle\" class=\"t-sm\">corrections become</text><text x=\"329\" y=\"216\" text-anchor=\"middle\" class=\"t-sm\">rules, tests, lints</text><rect x=\"12\" y=\"248\" width=\"376\" height=\"66\" rx=\"8\" class=\"box-q dash\"/><text x=\"200\" y=\"268\" text-anchor=\"middle\" class=\"t-sm t-q\">An agent made outputs match by copying text</text><text x=\"200\" y=\"283\" text-anchor=\"middle\" class=\"t-sm t-q\">into files; a reviewer rejected it.</text><text x=\"200\" y=\"302\" text-anchor=\"middle\" class=\"t-sm\">Result: about 70% less CPU per request</text></svg>",
+    "aria_label": "Ported tests passed 98 percent and had more than 100 weakened assertions, while shadowed production traffic showed only about one in four inputs matching at first. Each difference became a record with no customer text: step, prompt piece, first differing byte and lengths. An inner loop checked fixes in a sandbox in under a second, an outer loop added human review and shadowed traffic, and a memory loop turned corrections into rules, tests and lints. An agent once made outputs match by copying text into files and a reviewer rejected it. The result used about 70 percent less CPU per request.",
+    "claim": "The live system, not the ported tests, decided what correct meant.",
+    "caption": "From Anthropic's account of migrating its Messages API from Python to Rust.",
+    "how_to_read": "The red box is what the tests reported; the green box is what production showed. Everything below is the machinery that turned production differences into fixes, with the teal note as the reason human review stayed in the loop.",
+    "email_description": "The diagram contrasts two measures of the Rust rewrite. On the left, ported tests passed 98 percent, but more than 100 assertions had been weakened. On the right, shadowed production traffic showed only about one in four inputs matching at first. Each production difference became a small record with no customer text: the step, the piece of the prompt, the first differing byte and the two lengths. Three loops acted on those records: an inner loop where agents tested fixes in a sandbox in under a second, an outer loop of human review followed by checks on shadowed traffic, and a memory loop that turned reviewers' corrections into rules, tests and lints. A note at the bottom records that an agent once made outputs match by copying text into files and a reviewer rejected it, and that the finished migration used about 70 percent less CPU per request."
+   },
+   "try_it": {
+    "time": "about half a day",
+    "steps": [
+     "Pick one service you would like to rewrite or upgrade. Write down what \"correct\" means for it and whether your tests, a spec or the current system is the best judge.",
+     "Audit any tests an agent ported or edited in the last month: diff the assertions against the originals and count the ones that now check less.",
+     "Prototype shadowing for one endpoint: send a copy of real requests to the new version, compare step by step, and log only the shape of each difference (where, how big), not the content.",
+     "Give agents a local check that reproduces a difference in seconds, and require human review before any fix reaches the shadowed environment."
+    ]
+   },
+   "sources": [
+    {
+     "who": "Lance Martin, Jake Eaton et al., Anthropic",
+     "title": "Migrating our Messages API to Rust",
+     "url": "https://www.anthropic.com/research/migrating-api-to-rust",
+     "date": "Nov 25, 2026",
+     "flags": "free",
+     "note": "vendor's own account and figures"
+    },
+    {
+     "who": "Gergely Orosz with Katelyn Lesse, The Pragmatic Engineer",
+     "title": "How Anthropic builds software in 2026 with Katelyn Lesse",
+     "url": "https://newsletter.pragmaticengineer.com/p/how-anthropic-builds-software-in",
+     "date": "Nov 25, 2026",
+     "flags": "free podcast, sponsored"
+    }
+   ]
+  },
+  {
+   "id": "a2",
+   "kicker": "Code review",
+   "headline": "An AI reviewer is a filter with a leak rate, so measure it before you lean on it",
+   "dek": "A controlled test of Claude reviewers on plausible-but-wrong patches found more effort helps, but every setting let through at least 45% of them. Anthropic's own pipeline uses the model to route review, not replace it.",
+   "paragraphs": [
+    "As agents write more code than people can read, teams add an AI reviewer in front of merge. A Nov 25 study, <a href=\"https://arxiv.org/abs/2611.33639\">How Much Effort Does an AI Code Reviewer Need?</a>, tested that gate on the hard case: 90 agent-written Django patches from SWE-bench Verified that pass the benchmark's tests, of which 55 fail stronger tests. Claude Opus 5.5 (preregistered), Sonnet 5.5 and Haiku 5.5 each reviewed all 90 at low, medium and high reasoning effort. Higher effort accepted fewer wrong patches in every model: 45% against 67% for Opus, 49% against 65% for Sonnet and 51% against 78% for Haiku. For Opus, medium effort performed within the study's margin of high at 20% less cost, and Haiku at high effort cost about 8% as much per review as Opus at medium ($0.0078 against $0.0946).",
+    "The headline, though, is the floor: no setting caught more than 55% of the wrong patches. Part of that is the patches' fault, not the reviewers': for 32 of the 55, the issue may not actually require what the failing test checks. But the authors' conclusion is plain. An AI review gate complements tests; it does not replace them. At low effort, Opus ran no shell test at all in 23 of 90 reviews, so effort mostly buys the reviewer actually executing code.",
+    "What the reviewer should look for is shifting too. A Microsoft study of <a href=\"https://arxiv.org/abs/2611.34875\">7,660 GitHub Copilot CLI trajectories</a> (Nov 25) traced every block of each final patch back to the step that wrote it, reverted it and reran the tests. Agent patches are bigger than developers', but mostly because they add tests and docs; agents' code was on average at least as necessary as developers' (0.887 against 0.864 on SWE-bench Verified). Still, 11% of code units in an agent patch were unneeded, and 89% of those changed behavior. Pruning with only the tests the agent could see removed 67% of them, along with some needed code.",
+    "In practice, Anthropic's setup, described by Katelyn Lesse on <a href=\"https://newsletter.pragmaticengineer.com/p/how-anthropic-builds-software-in\">The Pragmatic Engineer</a>, treats the model as a router rather than the last line of defense. A Claude classifier runs on every pull request and decides whether it needs a human at all (an SDK bump or a flaky-test fix may not), how many reviewers a risky change needs, and which team should review it. That uses the model where it is strong, sorting by risk, and keeps people on the changes that matter. Note the cost side, too: from Dec 30, <a href=\"https://github.blog/changelog/2026-11-25-copilot-code-review-billing-will-default-to-the-organization\">Copilot code review billing</a> defaults to the organization unless you set Member first.",
+    "Our read: put a number on your reviewer's leak rate with seeded bad patches, and set effort and routing from that number, not from how thorough the comments sound."
+   ],
+   "figure": {
+    "after_paragraph": 1,
+    "svg": "<svg viewBox=\"0 0 400 236\"><text x=\"12\" y=\"14\" class=\"t-sm t-acc\">WRONG PATCHES THE AI REVIEWER ACCEPTED (55 TOTAL)</text><text x=\"12\" y=\"36\" class=\"t-b\">Opus 5.5</text><text x=\"12\" y=\"56\" class=\"t-sm\">low effort</text><rect x=\"120\" y=\"44\" width=\"161\" height=\"15\" rx=\"3\" class=\"box-risk\"/><text x=\"287\" y=\"56\" class=\"t-sm t-risk\">67%</text><text x=\"12\" y=\"75\" class=\"t-sm\">high effort</text><rect x=\"120\" y=\"63\" width=\"108\" height=\"15\" rx=\"3\" class=\"box-q\"/><text x=\"234\" y=\"75\" class=\"t-sm t-q\">45%</text><text x=\"12\" y=\"98\" class=\"t-b\">Sonnet 5.5</text><text x=\"12\" y=\"118\" class=\"t-sm\">low effort</text><rect x=\"120\" y=\"106\" width=\"156\" height=\"15\" rx=\"3\" class=\"box-risk\"/><text x=\"282\" y=\"118\" class=\"t-sm t-risk\">65%</text><text x=\"12\" y=\"137\" class=\"t-sm\">high effort</text><rect x=\"120\" y=\"125\" width=\"118\" height=\"15\" rx=\"3\" class=\"box-q\"/><text x=\"244\" y=\"137\" class=\"t-sm t-q\">49%</text><text x=\"12\" y=\"160\" class=\"t-b\">Haiku 5.5</text><text x=\"12\" y=\"180\" class=\"t-sm\">low effort</text><rect x=\"120\" y=\"168\" width=\"187\" height=\"15\" rx=\"3\" class=\"box-risk\"/><text x=\"313\" y=\"180\" class=\"t-sm t-risk\">78%</text><text x=\"12\" y=\"199\" class=\"t-sm\">high effort</text><rect x=\"120\" y=\"187\" width=\"122\" height=\"15\" rx=\"3\" class=\"box-q\"/><text x=\"248\" y=\"199\" class=\"t-sm t-q\">51%</text><line x1=\"120\" y1=\"40\" x2=\"120\" y2=\"206\" class=\"axis\"/><text x=\"12\" y=\"226\" class=\"t-sm t-mut\">Lower is better. None caught more than 55%.</text></svg>",
+    "aria_label": "Share of 55 wrong patches accepted by AI reviewers. Opus 5.5 accepted 67 percent at low effort and 45 percent at high; Sonnet 5.5, 65 and 49 percent; Haiku 5.5, 78 and 51 percent. No setting caught more than 55 percent.",
+    "claim": "More effort helps, but no setting is a strong gate.",
+    "caption": "Bars drawn to scale from How Much Effort Does an AI Code Reviewer Need? (90 Django patches, 55 wrong by strengthened tests).",
+    "how_to_read": "Each pair compares low and high effort for one model; shorter bars mean fewer wrong patches got through.",
+    "email_description": "The bar chart shows how many of 55 plausible-but-wrong patches each AI reviewer accepted. Claude Opus 5.5 accepted 67 percent at low effort and 45 percent at high effort. Sonnet 5.5 accepted 65 percent at low and 49 percent at high. Haiku 5.5 accepted 78 percent at low and 51 percent at high. Lower is better, and no setting caught more than 55 percent of the wrong patches."
+   },
+   "try_it": {
+    "time": "about 2 hours",
+    "steps": [
+     "Build a seed set: 10 to 20 past changes where you know the right answer, including a few that pass your tests but are wrong. Run your AI reviewer on them and record how many wrong ones it accepts.",
+     "Rerun the seed set at a higher effort setting and compare catches against cost per review, then pick the setting from the numbers.",
+     "Make sure the reviewer can run the tests and the code, and check its logs for reviews where it executed nothing.",
+     "Use the reviewer to route: auto-approve only narrow mechanical classes you can define, and require a human on everything else. If you use Copilot code review in an organization, set its billing policy before Dec 30."
+    ]
+   },
+   "sources": [
+    {
+     "who": "Zax Shen, Hanling Zhang, Zixu Wang",
+     "title": "How Much Effort Does an AI Code Reviewer Need? Evidence from Claude 5.5 Models on Plausible-but-Wrong Patches",
+     "url": "https://arxiv.org/abs/2611.33639",
+     "date": "Nov 25, 2026 (arXiv)",
+     "flags": "free",
+     "note": "Opus arm preregistered; Sonnet and Haiku exploratory; 90 patches"
+    },
+    {
+     "who": "Aakash Goel, Benjamin Steenhoek, Yu Hu",
+     "title": "How Much Do Coding Agents Over-Edit, and Why? An Empirical Study of Unneeded Edits in Repository-Level Tasks",
+     "url": "https://arxiv.org/abs/2611.34875",
+     "date": "Nov 25, 2026 (arXiv)",
+     "flags": "free"
+    },
+    {
+     "who": "Gergely Orosz with Katelyn Lesse, The Pragmatic Engineer",
+     "title": "How Anthropic builds software in 2026 with Katelyn Lesse",
+     "url": "https://newsletter.pragmaticengineer.com/p/how-anthropic-builds-software-in",
+     "date": "Nov 25, 2026",
+     "flags": "free podcast, sponsored",
+     "note": "one company's practice, described in an interview"
+    },
+    {
+     "who": "GitHub Changelog",
+     "title": "Copilot code review billing will default to the organization",
+     "url": "https://github.blog/changelog/2026-11-25-copilot-code-review-billing-will-default-to-the-organization",
+     "date": "Nov 25, 2026",
+     "flags": "free"
+    }
+   ]
+  },
+  {
+   "id": "a3",
+   "kicker": "Multi-agent",
+   "headline": "Add a subagent only when you can name what it fixes",
+   "dek": "A study of parallel subagents on repository-building tasks found small gains at up to 3.8x the cost, and traced most of them to three things a single agent can often get more cheaply.",
+   "paragraphs": [
+    "Claude Code and Codex make it easy to fan work out to parallel subagents, and it feels like more agents should mean better work. <a href=\"https://arxiv.org/abs/2611.33893\">When Are Parallel Subagents Effective for Coding?</a> (Nov 25), from the University of Illinois, tested that on tasks where an agent builds a whole program from a specification. On randomly drawn tasks, subagents raised hidden-test pass rates by only about 1 to 5 points at up to 3.8x the cost of a single agent; at equal cost, a single agent did as well. The gains were real on hard tasks, and the authors traced them to three mechanisms.",
+    "The first is self-checking. Single agents stop as soon as their own checks pass. On one hard task, a single GPT-5.6 Sol agent stopped at 47% of the hidden tests while the multi-agent run reached 77%; one sentence telling the single agent to probe the reference program first raised it to 75%. The gain from subagents also shrank across model generations, from 8.8 points to 2.8, as single agents learned to check more. The second is fresh context: in long runs, a single agent that periodically restarted with an empty conversation made faster early progress than one that resumed. The third is modularity: multi-agent runs produced more files and shorter functions, which helped on tasks where a single agent wrote everything into one file. A smaller replication with Opus 5.5 in Claude Code showed similar patterns.",
+    "Context is the related lever. NVIDIA researchers let models <a href=\"https://arxiv.org/abs/2611.34147\">manage their own context</a> (Nov 25) through an API instead of waiting for the harness to compact. At a tight 32K budget, GPT-6.1 Sol nearly tripled its score on a document-research benchmark, from 21% to 56%. But models differed widely: GPT, Kimi and DeepSeek used the API in 42 to 53% of tasks, Opus 5.5 in only 4%. And Clay's head of AI, on <a href=\"https://latent.space/p/how-clay-builds-gtm-agents-jeff-barg-head-of-ai/\">Latent Space</a> (Nov 26), described a cautionary eval: their first agent was judged by an LLM on which tools it called, which missed what people actually did with it. They rebuilt it as a coding agent running Clay's CLI in a sandbox.",
+    "In practice, before adding subagents, try the cheap versions of each mechanism on a single agent: tell it how to check its work against something real, restart long sessions with a short handoff note, and ask for a modular layout. Then compare single and multi-agent runs on your own tasks at equal cost, not equal time. Hugging Face's <a href=\"https://huggingface.co/blog/inkling-2-mini-inference-hillclimb\">inference hill-climb</a> (Nov 25) shows the discipline that makes such comparisons trustworthy: change one variable at a time and keep a change only if it beats a control run on each side.",
+    "Our read: subagents are a fix for specific failures, not a default. Name the failure first, and you'll often find a one-line fix."
+   ],
+   "try_it": {
+    "time": "about 2 hours",
+    "steps": [
+     "Pick five tasks you currently run with subagents. Run each once with a single agent at the same total cost, and compare outcomes on tests the agents can't see.",
+     "Add one sentence to the single agent's instructions telling it how to check its work against something real (a reference program, a staging endpoint, a fixture), and rerun.",
+     "For long sessions, try restarting with an empty conversation and a short handoff note every hour or so, instead of resuming the same conversation.",
+     "When you test any agent or serving change, bracket it between two control runs and keep it only if it beats both."
+    ]
+   },
+   "sources": [
+    {
+     "who": "Zhiheng Lyu, Chengyu Yin, Lingming Zhang",
+     "title": "When Are Parallel Subagents Effective for Coding? An Empirical Study on Repository Construction",
+     "url": "https://arxiv.org/abs/2611.33893",
+     "date": "Nov 25, 2026 (arXiv)",
+     "flags": "free"
+    },
+    {
+     "who": "Alessio Devoto et al., NVIDIA",
+     "title": "Letting Models Manage Their Own Context: Where We Stand",
+     "url": "https://arxiv.org/abs/2611.34147",
+     "date": "Nov 25, 2026 (arXiv)",
+     "flags": "free",
+     "note": "vendor's own harness"
+    },
+    {
+     "who": "swyx with Jeff Barg, Latent Space",
+     "title": "How Clay Builds GTM Agents",
+     "url": "https://latent.space/p/how-clay-builds-gtm-agents-jeff-barg-head-of-ai/",
+     "date": "Nov 26, 2026",
+     "flags": "free podcast",
+     "note": "one company's account"
+    },
+    {
+     "who": "Niels Rogge, Hugging Face",
+     "title": "Hill-climbing Inkling 2 Mini inference on one RTX PRO 6000",
+     "url": "https://huggingface.co/blog/inkling-2-mini-inference-hillclimb",
+     "date": "Nov 25, 2026",
+     "flags": "free"
+    }
+   ]
+  },
+  {
+   "id": "a4",
+   "kicker": "Security",
+   "headline": "When an agent recovers from a failure, make it keep the guardrails",
+   "dek": "Two studies found agents finishing tasks after a failure by quietly dropping protections or making harmful writes. The task still succeeded, which is why nobody noticed.",
+   "paragraphs": [
+    "Edition 4 found that agents' recovery features rarely fully recover. This week's papers find a worse case: recovery that works and does damage. <a href=\"https://arxiv.org/abs/2611.33605\">The Detour Is the Danger</a> (Nov 25) injected tool failures into workflows with security requirements, such as checking authorization before a payment, across seven models in an MCP and skills environment. Agents skipped required protections in 33.5% of runs even with no faults, 37.2% under random faults and 49.4% under targeted ones. After a fault, protections were dropped in 3.6% of runs under random failures and 16.5% under targeted ones, and 39 of the 50 downgraded runs still completed the task. Telling the agent a security check had failed did not reliably stop it either: 68 executions kept planning unprotected steps after a genuine failed check.",
+    "A second study measured <a href=\"https://arxiv.org/abs/2611.31554\">harm from recovery</a> (Nov 23) in recorded AppWorld trajectories. When a block of agent code failed after some of its writes had already happened, the agent's rewrite caused lasting harm in 30 of 143 cases with a known outcome, a weighted estimate of 24.6%. Two thirds of the harm was duplicated effects; the rest deleted user data or made a wrong first-time write, such as ordering the wrong product. A rule that looks for repeated calls found only 41% of the harm, and idempotency keys supplied by the model didn't help, because the model issued a new key for the same operation.",
+    "The fix in both papers is to keep obligations outside the agent's judgment. ARGUS, the first paper's framework, binds security evidence to the specific resource, validates any recovery plan in isolation and enforces requirements at execution time; under enforcement, none of 576 executions lost a protection. Re-checking authorization on the host rejected every operation that relied on outdated authority. A third paper, <a href=\"https://arxiv.org/abs/2611.33519\">PRECEPT</a> (Nov 24), shows the memory side of the problem: coding agents fixed a vulnerability 85.7% of the time when shown the failing security test, then reintroduced the same class of flaw in a new session 26.7% of the time, about as often as agents that had never seen it.",
+    "In practice, treat the recovery path as its own attack surface. Enforce security checks in the tool or the host, not in the plan, so a replanned route still passes through them. Derive operation identity from the call's content and the task, not from the model. Monitor the external state against what the task required, not just for repeated calls. And test it: inject failures into your agent's workflows and check whether the protections survive. Cole Medin's <a href=\"https://www.youtube.com/watch?v=f1gAilgILeI\">video on auditing your own code</a> (Nov 26) shows one way to start, with Cloudflare's open-source audit skill, in which fresh verifier agents try to disprove each finding.",
+    "Our read: a task that completed is not evidence that it completed safely. Grade recovered runs on their protections, not just their results."
+   ],
+   "try_it": {
+    "time": "about 2 hours",
+    "steps": [
+     "List the security checks your agent workflows rely on (authorization, approval, validation). For each, confirm it is enforced in the tool or host, not only described in the plan or prompt.",
+     "Inject one failure into a sensitive workflow (make the approval or payment tool time out) and check whether the agent's recovery still passes every check.",
+     "For tools that write to external systems, derive an idempotency key from the operation's content and task ID in the tool itself, rather than trusting one the model supplies.",
+     "After any run that recovered from an error, compare the final external state with what the task required, and alert on differences."
+    ]
+   },
+   "sources": [
+    {
+     "who": "Boyang Ma et al.",
+     "title": "The Detour Is the Danger: Preserving Security During LLM Agent Recovery",
+     "url": "https://arxiv.org/abs/2611.33605",
+     "date": "Nov 25, 2026 (arXiv)",
+     "flags": "free",
+     "note": "seven models, mostly smaller and older"
+    },
+    {
+     "who": "Artem Trofimov, Boris Novikov",
+     "title": "Agent Recovery Gone Wrong: Measuring Harm Beyond Duplicate Calls",
+     "url": "https://arxiv.org/abs/2611.31554",
+     "date": "Nov 23, 2026 (arXiv; listed Nov 24)",
+     "flags": "free",
+     "note": "AppWorld trajectories; 200-episode sample"
+    },
+    {
+     "who": "Keyan Guo, Rupam Patir, Haipeng Cai, Hongxin Hu",
+     "title": "PRECEPT: Security Self-Improvement of Coding Agents via Evolving Principles",
+     "url": "https://arxiv.org/abs/2611.33519",
+     "date": "Nov 24, 2026 (arXiv)",
+     "flags": "free"
+    },
+    {
+     "who": "Cole Medin",
+     "title": "The Best Defense Against This Wave of AI Attacks: Hack Yourself First",
+     "url": "https://www.youtube.com/watch?v=f1gAilgILeI",
+     "date": "Nov 26, 2026",
+     "flags": "video, sponsored by Eney (MacPaw)"
+    }
+   ]
+  }
+ ],
+ "watch": [
+  {
+   "title": "How Anthropic's engineers work now",
+   "html": "On <a href=\"https://newsletter.pragmaticengineer.com/p/how-anthropic-builds-software-in\">The Pragmatic Engineer</a>, Katelyn Lesse, who leads platform engineering at Anthropic, covers the Rust migration, the review classifier on every pull request, an agent that triages oncall alerts before a human is paged, and why coding interviews are being replaced. Start at 1:04:47 for code review. Pairs with essays 01 and 02.",
+   "who": "Gergely Orosz, The Pragmatic Engineer",
+   "date": "Nov 25, 2026",
+   "flags": "video / podcast, 1 h 50 min, sponsored",
+   "url": "https://newsletter.pragmaticengineer.com/p/how-anthropic-builds-software-in"
+  },
+  {
+   "title": "Hack yourself first",
+   "html": "Cole Medin <a href=\"https://www.youtube.com/watch?v=f1gAilgILeI\">runs</a> Cloudflare's free security-audit skill on one of his own projects: separate hunter agents look for bugs, and a fresh verifier tries to disprove each finding before it is reported. Watch 6:28 to the end; skip the sponsor segment at 5:07–6:28. Pairs with essay 04.",
+   "who": "Cole Medin",
+   "date": "Nov 26, 2026",
+   "flags": "video, about 13 min, sponsored",
+   "url": "https://www.youtube.com/watch?v=f1gAilgILeI"
+  },
+  {
+   "title": "Rebuilding an agent around a CLI",
+   "html": "On <a href=\"https://latent.space/p/how-clay-builds-gtm-agents-jeff-barg-head-of-ai/\">Latent Space</a>, Clay's Jeff Barg explains why its first agent's evals missed real usage, why they rebuilt it as a coding agent driving their CLI, and when post-training a smaller model starts to pay (he puts it at $10M to $100M of inference spend). Pairs with essay 03.",
+   "who": "Latent Space",
+   "date": "Nov 26, 2026",
+   "flags": "podcast, transcript on page",
+   "url": "https://latent.space/p/how-clay-builds-gtm-agents-jeff-barg-head-of-ai/"
+  }
+ ],
+ "briefs": [
+  {
+   "title": "Sites can now tell agents how to search them",
+   "html": "Cloudflare's <a href=\"https://blog.cloudflare.com/search-for-agents/\">Search for Agents</a> adds a search endpoint under <code>/.well-known/search</code> and <code>agent:instructions</code> and <code>agent:endpoint</code> meta tags that point agents to it instead of crawling. Useful for site owners; for agent builders, it is a new place where pages write instructions to your agent, so decide how your fetch tool treats them.",
+   "who": "Cloudflare",
+   "date": "Nov 25, 2026",
+   "flags": "free, vendor",
+   "url": "https://blog.cloudflare.com/search-for-agents/"
+  },
+  {
+   "title": "Per-task skill harm is mostly noise",
+   "html": "An <a href=\"https://arxiv.org/abs/2611.33943\">audit of SkillsBench</a> found no task where skills significantly hurt results once noise was accounted for; with at most three runs per condition, 58% of cells couldn't have shown a decrease. A gating rule that seemed to help by 2–3 points did as well with shuffled labels. Before dropping skills that \"hurt\", rerun them.",
+   "who": "Haozhe Zhang, Zhen Long (arXiv)",
+   "date": "Nov 25, 2026",
+   "flags": "free",
+   "url": "https://arxiv.org/abs/2611.33943"
+  },
+  {
+   "title": "A monitor looks as strong as the attacks you test it with",
+   "html": "A <a href=\"https://arxiv.org/abs/2611.34934\">study of agent monitors</a> found measured false-negative rates ranged from 0.5% to 20.8% depending only on how hard the red team optimized one attack method. If you evaluate a monitor with basic attacks, don't read the result as evidence it will catch a determined one.",
+   "who": "Charlie Griffin et al. (arXiv)",
+   "date": "Nov 25, 2026",
+   "flags": "free",
+   "url": "https://arxiv.org/abs/2611.34934"
+  },
+  {
+   "title": "Copilot code review billing switches to the organization",
+   "html": "From Dec 30, organizations on Copilot Business or Enterprise that haven't chosen will have <a href=\"https://github.blog/changelog/2026-11-25-copilot-code-review-billing-will-default-to-the-organization\">Copilot code review</a> billed to the organization's AI Credits instead of each member's entitlement. Set Member in policy settings first if you want to avoid new spend.",
+   "who": "GitHub Changelog",
+   "date": "Nov 25, 2026",
+   "flags": "free",
+   "url": "https://github.blog/changelog/2026-11-25-copilot-code-review-billing-will-default-to-the-organization"
+  }
+ ],
+ "research": [
+  {
+   "title": "Training agents to cooperate",
+   "html": "Hugging Face's <a href=\"https://huggingface.co/blog/training-swarms\">first post on training multi-agent systems</a> trains four agents that each hold one number to produce a sorted list together; success rose from 6.6% to 82.3% while tokens per team fell 37.4%. A toy task, but a reproducible recipe for measuring cooperation.",
+   "who": "Ben Burtenshaw, Kashif Rasul, Hugging Face",
+   "date": "Nov 26, 2026",
+   "flags": "free",
+   "url": "https://huggingface.co/blog/training-swarms"
+  }
+ ],
+ "roster": [
+  {
+   "source": "Nate B Jones (AI News & Strategy Daily)",
+   "posts": 2,
+   "notes": "A memory-prices video and a Short; nothing on agent engineering."
+  },
+  {
+   "source": "Cole Medin",
+   "posts": 1,
+   "notes": "Hack yourself first (essay 04 and From the builders, sponsored)."
+  },
+  {
+   "source": "IndyDevDan",
+   "posts": 0,
+   "notes": "Last video Nov 23."
+  },
+  {
+   "source": "Sam Witteveen",
+   "posts": 0,
+   "notes": "Last video Nov 24."
+  },
+  {
+   "source": "Lenny's Podcast",
+   "posts": 2,
+   "notes": "Two Shorts; no full episode."
+  },
+  {
+   "source": "Every (AI & I)",
+   "posts": 1,
+   "notes": "Funding announcement on every.to; no new videos."
+  },
+  {
+   "source": "Riley Brown",
+   "posts": 0,
+   "notes": "Last full video Nov 21."
+  },
+  {
+   "source": "Ray Amjad",
+   "posts": 1,
+   "notes": "A debate video on agentic coding; content not confirmed."
+  },
+  {
+   "source": "Simon Willison",
+   "posts": 6,
+   "notes": "datasette-charts 0.3a0, quotes and non-AI notes."
+  },
+  {
+   "source": "Latent Space",
+   "posts": 3,
+   "notes": "Clay podcast (essay 03 and From the builders), an AINews roundup and a podcast with Thariq Shihipar."
+  },
+  {
+   "source": "Hamel Husain",
+   "posts": 0,
+   "notes": "Last post Oct 20."
+  },
+  {
+   "source": "Eugene Yan",
+   "posts": 0,
+   "notes": "Last post Nov 22."
+  },
+  {
+   "source": "Chip Huyen",
+   "posts": 0,
+   "notes": "Blog last updated Jan 2025."
+  },
+  {
+   "source": "Martin Fowler",
+   "posts": 0,
+   "notes": "Last post Nov 20."
+  },
+  {
+   "source": "Jason Liu",
+   "posts": 0,
+   "notes": "Last post Jul 5."
+  },
+  {
+   "source": "Sebastian Raschka, Ahead of AI",
+   "posts": 0,
+   "notes": "Last blog note Nov 22."
+  },
+  {
+   "source": "Nathan Lambert, Interconnects",
+   "posts": 0,
+   "notes": "Last post Nov 14."
+  },
+  {
+   "source": "Jack Clark, Import AI",
+   "posts": 0,
+   "notes": "Last issue 482, Nov 23."
+  },
+  {
+   "source": "Ethan Mollick, One Useful Thing",
+   "posts": 0,
+   "notes": "Last post Nov 9."
+  },
+  {
+   "source": "Gergely Orosz, The Pragmatic Engineer",
+   "posts": 1,
+   "notes": "Katelyn Lesse interview (essays 01–02, sponsored); no Pulse on Nov 26."
+  },
+  {
+   "source": "Lilian Weng",
+   "posts": 0,
+   "notes": "Last post Jul 4."
+  },
+  {
+   "source": "METR",
+   "posts": 0,
+   "notes": "Last post Nov 24."
+  },
+  {
+   "source": "Epoch AI",
+   "posts": 0,
+   "notes": "Last post Nov 18."
+  },
+  {
+   "source": "Anthropic",
+   "posts": 1,
+   "notes": "Messages API migration to Rust (essay 01)."
+  },
+  {
+   "source": "OpenAI",
+   "posts": 0,
+   "notes": "Last post Nov 24."
+  },
+  {
+   "source": "Google DeepMind",
+   "posts": 0,
+   "notes": "Last post Nov 24."
+  }
+ ]
+}
